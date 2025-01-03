@@ -78,7 +78,7 @@ namespace Components
             this.configuration = AssetService.GetConfigurationFile();
 
             notifyIcon = new NotifyIcon();
-            notifyIcon.Icon = Resources.favicon;
+            notifyIcon.Icon = Resources.icon64;
             notifyIcon.Text = "WinWidgets";
             notifyIcon.Visible = true;
             notifyIcon.ContextMenu = new ContextMenu(new MenuItem[]
@@ -103,7 +103,7 @@ namespace Components
             window.StartPosition = FormStartPosition.CenterScreen;
             window.Text = title;
             window.Activated += delegate { handle = window.Handle; };
-            window.Icon = Resources.favicon;
+            window.Icon = Resources.icon64;
             window.Resize += OnFormResized;
             window.ShowInTaskbar = false;
             AppendWidget(window, managerUIPath);

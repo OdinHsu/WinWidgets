@@ -52,7 +52,8 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>WidgetsDotNet_1_TemporaryKey.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -176,7 +177,6 @@
     <None Include="Assets\icon.psd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="WidgetsDotNet_1_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="48favicon.ico" />
@@ -186,6 +186,7 @@
     <Content Include="Assets\icon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\icon64.ico" />
     <Content Include="Assets\index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -221,6 +222,8 @@
     </Content>
     <Content Include="Core\WidgetsDotNetCore.dll" />
     <Content Include="favicon.ico" />
+    <Content Include="icon64.ico" />
+    <Content Include="Resources\icon64.ico" />
     <None Include="Resources\favicon.ico" />
   </ItemGroup>
   <ItemGroup>

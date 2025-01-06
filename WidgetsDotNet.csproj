@@ -161,7 +161,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Services\Form.Service.cs" />
-    <Compile Include="Services\ScreenPositionAPI.Service.cs" />
+    <Compile Include="Services\ScreenSettingAPI.Service.cs" />
     <Compile Include="Services\Hardware.Service.cs" />
     <Compile Include="Services\HTMLDoc.Service.cs" />
     <Compile Include="Services\MenuHandler.Service.cs" />

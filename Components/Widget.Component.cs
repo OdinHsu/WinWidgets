@@ -74,7 +74,7 @@ namespace Components
 
                 if (position == default(Point))
                 {
-                    var bounds = ScreenPositionAPI.GetScreenBounds("Racer-Tech USB Display Device");
+                    var bounds = ScreenSettingAPI.GetScreenBounds("Racer-Tech USB Display Device");
                     position = new Point(bounds.Item1, bounds.Item2);
                 }
 

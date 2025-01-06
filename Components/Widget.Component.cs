@@ -9,6 +9,7 @@ using System.Drawing;
 using System.Threading;
 using System.Timers;
 using System.Windows.Forms;
+using System.IO;
 
 namespace Components
 {
@@ -74,7 +75,11 @@ namespace Components
 
                 if (position == default(Point))
                 {
-                    var bounds = ScreenSettingAPI.GetScreenBounds("Racer-Tech USB Display Device");
+                    // JSON 檔案路徑
+                    string json = File.ReadAllText("appsettings.json"); // 讀取 JSON 檔案
+                    var config = JsonConvert.DeserializeObject<dynamic>(json); // 解析成動態物件
+                    // 获取当前窗口所处的屏幕边界
+                    var bounds = ScreenSettingAPI.GetScreenBounds(config.ScreenDescription.ToString());  // 返回的是元組 (left, top, right, bottom)
                     position = new Point(bounds.Item1+50, bounds.Item2+50);
                 }
 

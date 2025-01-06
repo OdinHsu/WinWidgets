@@ -4,7 +4,8 @@ using System;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Windows.Forms;
+using Newtonsoft.Json;
+using System.IO;
 
 internal class Program
 {
@@ -51,7 +52,6 @@ internal class Program
 
         if (!processExists)
         {
-            // 调用 EnumWindows 函数，遍历系统窗口
             EnumWindows(OnEnumWindow, 0);  // 隱藏任務欄
             new WidgetsManagerComponent();
         }
@@ -73,8 +73,12 @@ internal class Program
             // 打印窗口类名和边界（调试信息）
             Console.WriteLine($"Taskbar Found: hWnd = {hWnd}, Class = {className.ToString()}, Bounds = ({rect.Left}, {rect.Top}, {rect.Right}, {rect.Bottom})");
 
+            // JSON 檔案路徑
+            string json = File.ReadAllText("appsettings.json"); // 讀取 JSON 檔案
+            var config = JsonConvert.DeserializeObject<dynamic>(json); // 解析成動態物件
+
             // 获取当前窗口所处的屏幕边界
-            var screenBounds = ScreenSettingAPI.GetScreenBounds("Racer-Tech USB Display Device");  // 返回的是元組 (left, top, right, bottom)
+            var screenBounds = ScreenSettingAPI.GetScreenBounds(config.ScreenDescription.ToString());  // 返回的是元組 (left, top, right, bottom)
 
             // 判断任务栏是否位于指定屏幕内
             if (rect.Left >= screenBounds.Item1 && rect.Top >= screenBounds.Item2 &&

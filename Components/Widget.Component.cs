@@ -72,6 +72,12 @@ namespace Components
                 POINT mousePos;
                 GetCursorPos(out mousePos);
 
+                if (position == default(Point))
+                {
+                    var bounds = ScreenPositionAPI.GetScreenBounds("Racer-Tech USB Display Device");
+                    position = new Point(bounds.Item1, bounds.Item2);
+                }
+
                 string sizeString = this.htmlDocService.GetMetaTagValue("windowSize", htmlPath);
                 string radiusString = this.htmlDocService.GetMetaTagValue("windowBorderRadius", htmlPath);
                 string locationString = this.htmlDocService.GetMetaTagValue("windowLocation", htmlPath);

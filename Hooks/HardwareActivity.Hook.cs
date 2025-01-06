@@ -21,7 +21,7 @@ namespace Hooks
         {
             this.timerService.CreateTimer(1000, OnBatteryLevelEvent, true, true);
             this.timerService.CreateTimer(1000, OnSpaceAvailableInDrivesEvent, true, true);
-            this.timerService.CreateTimer(1000, OnAnyApplicationFullscreenStatusEvent, true, true);
+            //this.timerService.CreateTimer(1000, OnAnyApplicationFullscreenStatusEvent, true, true);
         }
 
         private void OnBatteryLevelEvent(object sender, ElapsedEventArgs e)

@@ -90,7 +90,7 @@ namespace Components
             notifyIcon.MouseDoubleClick += NotifyIconDoubleClick;
 
             Rectangle screenResolution = Screen.PrimaryScreen.Bounds;
-            int width = screenResolution.Width / 2;
+            int width = (int)(screenResolution.Width * 0.7);
             int height = screenResolution.Height - 200;
 
             CreateWindow(width, height, "WinWidgets", false);

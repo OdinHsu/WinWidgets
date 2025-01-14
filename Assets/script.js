@@ -28,10 +28,10 @@ function changeText(id, text) {
 function changeTab(element) {
   const dashboard = document.getElementById("dashboard");
   const settings = document.getElementById("settings");
-  const development = document.getElementById("development");
+  //const development = document.getElementById("development");
   dashboard.style.fill = "var(--gray)";
   settings.style.fill = "var(--gray)";
-  development.style.fill = "var(--gray)";
+  //development.style.fill = "var(--gray)";
   element.style.fill = "var(--black)";
 
   switch (element.getAttribute("tab")) {
@@ -44,14 +44,14 @@ function changeTab(element) {
       document.getElementById("development-container").style.display = "none";
       break;
 
-    case "development":
-      document.getElementById("widgets").style.display = "none";
-      document.getElementById("options").style.display = "none";
-      document.getElementById("searchcontainer").style.display = "none";
-      document.getElementById("nextwindowtitle").style.display = "none";
-      document.getElementById("windowtitle").innerHTML = "Development";
-      document.getElementById("development-container").style.display = "flex";
-      break;
+    //case "development":
+    //  document.getElementById("widgets").style.display = "none";
+    //  document.getElementById("options").style.display = "none";
+    //  document.getElementById("searchcontainer").style.display = "none";
+    //  document.getElementById("nextwindowtitle").style.display = "none";
+    //  document.getElementById("windowtitle").innerHTML = "Development";
+    //  document.getElementById("development-container").style.display = "flex";
+    //  break;
 
     case "settings":
       document.getElementById("widgets").style.display = "none";

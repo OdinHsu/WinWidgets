@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="applicationTitle" content="CPU Information" />
+    <meta name="previewSize" content="360 180" />
+    <meta name="windowSize" content="360 180" />
+    <meta name="windowBorderRadius" content="10" />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+    <div class="cpu-wrapper">
+        <span id="cpu-name">Loading...</span>
+        <span id="cpu-cores">Loading...</span>
+        <span id="cpu-threads">Loading...</span>
+        <span id="cpu-speed">Loading...</span>
+    </div>
+</body>
+<script>
+    function onNativeCPUInfoEvent(cpuData) {
+        const cpu = JSON.parse(cpuData);
+        console.log("CPU Data:", cpu);
+        document.querySelector("#cpu-name").innerText = `Name: ${cpu.Name}`;
+        document.querySelector("#cpu-cores").innerText = `Cores: ${cpu.Cores}`;
+        document.querySelector("#cpu-threads").innerText = `Threads: ${cpu.Threads}`;
+        document.querySelector("#cpu-speed").innerText = `Clock Speed: ${cpu.ClockSpeed} MHz`;
+    }
+</script>
+<style>
+    :root {
+        --lightgray: #f1f1f1;
+    }
+
+    .cpu-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-top: 20px;
+        color: var(--lightgray);
+    }
+
+        .cpu-wrapper > span {
+            margin: 5px 0;
+            font-size: 20px;
+        }
+</style>
+</html>

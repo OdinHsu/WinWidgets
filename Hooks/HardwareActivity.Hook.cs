@@ -17,11 +17,21 @@ namespace Hooks
         private TimerService timerService = new TimerService();
         private HardwareService hardwareService = new HardwareService();
 
+        public delegate void CPUInfoHandler(string cpuInfo);
+        public event CPUInfoHandler OnCPUInfo;
+
         public HardwareActivityHook() 
         {
             this.timerService.CreateTimer(1000, OnBatteryLevelEvent, true, true);
             this.timerService.CreateTimer(1000, OnSpaceAvailableInDrivesEvent, true, true);
             //this.timerService.CreateTimer(1000, OnAnyApplicationFullscreenStatusEvent, true, true);
+            this.timerService.CreateTimer(1000, OnCPUInfoEvent, true, true);
+        }
+
+        private void OnCPUInfoEvent(object sender, ElapsedEventArgs e)
+        {
+            string cpuInfo = this.hardwareService.GetCPUInfo();
+            OnCPUInfo?.Invoke(cpuInfo);
         }
 
         private void OnBatteryLevelEvent(object sender, ElapsedEventArgs e)

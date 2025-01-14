@@ -135,6 +135,12 @@ namespace Services
         /// <param name="javascript">The code snippet to be injected</param>
         public void InjectJavascript(WidgetComponent widget, string javascript, bool executeOnlyWhenPageLoads = false)
         {
+            if (widget == null || widget.browser == null)
+            {
+                Console.WriteLine("Widget or browser instance is null.");
+                return;
+            }
+
             try
             {
                 if (!executeOnlyWhenPageLoads)

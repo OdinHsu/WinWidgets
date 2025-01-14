@@ -5,6 +5,7 @@
         NativeKeys = 0,
         BatteryLevel = 1,
         SpaceAvailable = 2,
+        CPUInfo = 3,
     }
 
     internal struct PeripheralAction

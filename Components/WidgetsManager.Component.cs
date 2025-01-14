@@ -274,6 +274,7 @@ namespace Components
                 hardwareActivityHook.OnBatteryLevel += OnBatteryLevelChanged;
                 hardwareActivityHook.OnSpaceAvailable += OnSpaceAvailableChanged;
                 hardwareActivityHook.OnAnyApplicationFullscrenStatusChanged += OnAnyApplicationFullscrenStatusChanged;
+                hardwareActivityHook.OnCPUInfo += OnCPUInfoChanged;
             }));
         }
 
@@ -301,8 +302,16 @@ namespace Components
                     case HardwareEvent.SpaceAvailable:
                         this.widgetService.InjectJavascript(widget, "if (typeof onNativeSpaceAvailableEvent === 'function') { onNativeSpaceAvailableEvent(" + data + "); }");
                         break;
+                    case HardwareEvent.CPUInfo:
+                        this.widgetService.InjectJavascript(widget, "if (typeof onNativeCPUInfoEvent === 'function') { onNativeCPUInfoEvent(" + data + "); }");
+                        break;
                 }
             }
+        }
+
+        private void OnCPUInfoChanged(string cpuInfo)
+        {
+            CallJavaScriptFunction(cpuInfo, HardwareEvent.CPUInfo);
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)

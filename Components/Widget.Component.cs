@@ -73,13 +73,12 @@ namespace Components
                 POINT mousePos;
                 GetCursorPos(out mousePos);
 
-                if (position == default(Point))
+                // JSON 檔案路徑
+                string json = File.ReadAllText("appsettings.json"); // 讀取 JSON 檔案
+                var config = JsonConvert.DeserializeObject<dynamic>(json); // 解析成動態物件
+                var bounds = ScreenSettingAPI.GetScreenBounds(config.ScreenDescription.ToString());  // 返回的是元組 (left, top, right, bottom)
+                if (position == default(Point) && bounds != null)
                 {
-                    // JSON 檔案路徑
-                    string json = File.ReadAllText("appsettings.json"); // 讀取 JSON 檔案
-                    var config = JsonConvert.DeserializeObject<dynamic>(json); // 解析成動態物件
-                    // 获取当前窗口所处的屏幕边界
-                    var bounds = ScreenSettingAPI.GetScreenBounds(config.ScreenDescription.ToString());  // 返回的是元組 (left, top, right, bottom)
                     position = new Point(bounds.Item1+50, bounds.Item2+50);
                 }
 

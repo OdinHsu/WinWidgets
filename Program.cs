@@ -52,7 +52,11 @@ internal class Program
 
         if (!processExists)
         {
-            EnumWindows(OnEnumWindow, 0);  // 隱藏任務欄
+            // JSON 檔案路徑
+            string json = File.ReadAllText("appsettings.json"); // 讀取 JSON 檔案
+            var config = JsonConvert.DeserializeObject<dynamic>(json); // 解析成動態物件
+            if (ScreenSettingAPI.GetScreenBounds(config.ScreenDescription.ToString()) != null)
+                EnumWindows(OnEnumWindow, 0);  // 隱藏任務欄
             new WidgetsManagerComponent();
         }
     }

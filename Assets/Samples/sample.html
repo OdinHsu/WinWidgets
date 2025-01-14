@@ -1,0 +1,193 @@
+<!-- Media Player Widget -->
+<style>
+  body,
+  html {
+    background: linear-gradient(to bottom right, #2c3e50, #4ca1af);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "Courier New", Courier, monospace;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  .widget-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #1e1e1e;
+    color: #fff;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.5);
+    max-width: 400px;
+    min-width: 320px;
+  }
+
+  .widget-header {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.4);
+  }
+
+  .widget-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .progress-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .progress-bar {
+    flex-grow: 1;
+    height: 8px;
+    background: #333;
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: inset 0px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(to right, #4caf50, #81c784);
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+
+  .time-display {
+    font-size: 0.9rem;
+    font-family: Arial, sans-serif;
+    color: #ddd;
+  }
+
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-top: 15px;
+  }
+
+  .control-button {
+    background: #333;
+    color: #fff;
+    padding: 15px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  .control-button:hover {
+    transform: scale(1.15);
+    background: #444;
+  }
+</style>
+
+<script>
+  let audio;
+  let isPlaying = false;
+
+  function initializeAudio() {
+    audio = new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
+    audio.addEventListener("timeupdate", updateProgressBar);
+    audio.addEventListener("ended", () => {
+      isPlaying = false;
+      updatePlayPauseButton();
+    });
+  }
+
+  function togglePlayPause() {
+    if (!audio) {
+      initializeAudio();
+    }
+    if (audio.paused) {
+      audio.play();
+      isPlaying = true;
+      document.getElementById("widget-content").innerText = "Playing...";
+    } else {
+      audio.pause();
+      isPlaying = false;
+      document.getElementById("widget-content").innerText = "Paused";
+    }
+    updatePlayPauseButton();
+  }
+
+  function updatePlayPauseButton() {
+    const playPauseButton = document.getElementById("play-pause-button");
+    playPauseButton.innerText = isPlaying ? "⏸" : "▶";
+  }
+
+  function updateProgressBar() {
+    if (audio) {
+      const progressBarFill = document.querySelector(".progress-bar-fill");
+      const currentTime = audio.currentTime;
+      const duration = audio.duration;
+      const percentage = (currentTime / duration) * 100;
+      progressBarFill.style.width = percentage + "%";
+
+      const currentTimeDisplay = formatTime(currentTime);
+      const durationDisplay = formatTime(duration);
+      document.getElementById("time-display").innerText = `${currentTimeDisplay} / ${durationDisplay}`;
+    }
+  }
+
+  function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
+  }
+
+  function seek(event) {
+    if (audio) {
+      const progressBar = document.querySelector(".progress-bar");
+      const rect = progressBar.getBoundingClientRect();
+      const offsetX = event.clientX - rect.left;
+      const percentage = offsetX / rect.width;
+      audio.currentTime = percentage * audio.duration;
+    }
+  }
+
+  window.onload = () => {
+    initializeAudio();
+    updatePlayPauseButton();
+  };
+</script>
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Media Player Widget</title>
+  </head>
+  <body>
+    <div class="widget-container">
+      <div class="widget-header">Media Player</div>
+      <div class="widget-content" id="widget-content">Ready to play.</div>
+      <div class="progress-container" onclick="seek(event)">
+        <div class="progress-bar">
+          <div class="progress-bar-fill"></div>
+        </div>
+        <div class="time-display" id="time-display">0:00 / 0:00</div>
+      </div>
+      <div class="controls">
+        <div class="control-button" id="play-pause-button" onclick="togglePlayPause()">▶</div>
+      </div>
+    </div>
+  </body>
+</html>

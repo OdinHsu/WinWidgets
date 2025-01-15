@@ -1,0 +1,157 @@
+[
+  {
+    "Hardware": "NVIDIA GeForce MX350",
+    "Sensors": [
+      {
+        "SensorName": "GPU Core",
+        "Value": 64.0,
+        "Type": "Temperature"
+      },
+      {
+        "SensorName": "GPU Core",
+        "Value": 1354.0,
+        "Type": "Clock"
+      },
+      {
+        "SensorName": "GPU Memory",
+        "Value": 3504.0,
+        "Type": "Clock"
+      },
+      {
+        "SensorName": "GPU Core",
+        "Value": 0.0,
+        "Type": "Load"
+      },
+      {
+        "SensorName": "GPU Memory Controller",
+        "Value": 0.0,
+        "Type": "Load"
+      },
+      {
+        "SensorName": "GPU Video Engine",
+        "Value": 0.0,
+        "Type": "Load"
+      },
+      {
+        "SensorName": "GPU Bus",
+        "Value": 0.0,
+        "Type": "Load"
+      },
+      {
+        "SensorName": "GPU Hot Spot",
+        "Value": 70.0625,
+        "Type": "Temperature"
+      },
+      {
+        "SensorName": "GPU Memory Total",
+        "Value": 2048.0,
+        "Type": "SmallData"
+      },
+      {
+        "SensorName": "GPU Memory Free",
+        "Value": 1979.0,
+        "Type": "SmallData"
+      },
+      {
+        "SensorName": "GPU Memory Used",
+        "Value": 68.0,
+        "Type": "SmallData"
+      },
+      {
+        "SensorName": "GPU Memory",
+        "Value": 3.332901,
+        "Type": "Load"
+      }
+    ]
+  },
+  {
+    "Hardware": "Intel(R) Iris(R) Xe Graphics",
+    "Sensors": [
+      {
+        "SensorName": "GPU Power",
+        "Value": 1.54032087,
+        "Type": "Power"
+      },
+      {
+        "SensorName": "D3D Shared Memory Total",
+        "Value": 12177.6523,
+        "Type": "SmallData"
+      },
+      {
+        "SensorName": "D3D Shared Memory Free",
+        "Value": 11339.8516,
+        "Type": "SmallData"
+      },
+      {
+        "SensorName": "D3D Shared Memory Used",
+        "Value": 838.0117,
+        "Type": "SmallData"
+      },
+      {
+        "SensorName": "D3D 3D",
+        "Value": 33.2998924,
+        "Type": "Load"
+      },
+      {
+        "SensorName": "D3D Video Decode",
+        "Value": 0.0,
+        "Type": "Load"
+      },
+      {
+        "SensorName": "D3D Copy",
+        "Value": 0.0,
+        "Type": "Load"
+      },
+      {
+        "SensorName": "D3D Video Processing",
+        "Value": 0.0,
+        "Type": "Load"
+      },
+      {
+        "SensorName": "D3D Video Decode",
+        "Value": 0.0,
+        "Type": "Load"
+      },
+      {
+        "SensorName": "D3D Other",
+        "Value": 0.0,
+        "Type": "Load"
+      },
+      {
+        "SensorName": "D3D Other",
+        "Value": 0.0,
+        "Type": "Load"
+      },
+      {
+        "SensorName": "D3D Other",
+        "Value": 0.0,
+        "Type": "Load"
+      },
+      {
+        "SensorName": "D3D Other",
+        "Value": 0.0,
+        "Type": "Load"
+      },
+      {
+        "SensorName": "D3D Overlay",
+        "Value": 0.0,
+        "Type": "Load"
+      },
+      {
+        "SensorName": "D3D GDI Render",
+        "Value": 0.0,
+        "Type": "Load"
+      },
+      {
+        "SensorName": "D3D Video Processing",
+        "Value": 0.0,
+        "Type": "Load"
+      },
+      {
+        "SensorName": "D3D Other",
+        "Value": 0.0,
+        "Type": "Load"
+      }
+    ]
+  }
+]

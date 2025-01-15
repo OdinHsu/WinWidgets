@@ -34,16 +34,6 @@ namespace Services
         public void VisitParameter(IParameter parameter) { } // 無需處理參數
     }
 
-    public class GPUInfo
-    {
-        public string Name { get; set; }
-        public float GPUUsage { get; set; }
-        public float MemoryUsage { get; set; }
-        public float MemoryTotal { get; set; }
-        public float MemoryFree { get; set; }
-        public float Temperature { get; set; }
-    }
-
     internal class HardwareService
     {
         private readonly Computer computer;
@@ -197,7 +187,6 @@ namespace Services
                     // 設定核心數和執行緒數
                     cpuInfo.Cores = uniqueCores.Count; // 唯一核心數
                     cpuInfo.Threads = filteredKeys.Count; // 鍵的總數（即執行緒數）
-
                 }
             }
 
@@ -211,7 +200,7 @@ namespace Services
         /// <returns>GPU info in JSON format</returns>
         public string GetAllGPUInfo()
         {
-            var gpuInfos = new List<GPUInfo>();
+            var gpuInfoList = new List<Dictionary<string, object>>();
 
             foreach (IHardware hardware in computer.Hardware)
             {
@@ -220,42 +209,32 @@ namespace Services
                     hardware.HardwareType == HardwareType.GpuIntel)
                 {
                     hardware.Update();
-                    GPUInfo gpuInfo = new GPUInfo();
 
-                    gpuInfo.Name = hardware.Name;
+                    var hardwareInfo = new Dictionary<string, object>
+                    {
+                        { "Hardware", hardware.Name },
+                        { "Sensors", new List<Dictionary<string, object>>() }
+                    };
 
                     foreach (ISensor sensor in hardware.Sensors)
                     {
-                        if (sensor.SensorType == SensorType.Load && sensor.Name == "GPU Core")
+                        var sensorInfo = new Dictionary<string, object>
                         {
-                            gpuInfo.GPUUsage = sensor.Value.GetValueOrDefault();
-                        }
-                        if (sensor.SensorType == SensorType.Load && sensor.Name == "GPU Memory")
-                        {
-                            gpuInfo.MemoryUsage = sensor.Value.GetValueOrDefault();
-                        }
-                        if (sensor.SensorType == SensorType.Data && sensor.Name.Contains("Memory Total"))
-                        {
-                            gpuInfo.MemoryTotal = sensor.Value.GetValueOrDefault();
-                        }
-                        if (sensor.SensorType == SensorType.Data && sensor.Name.Contains("Memory Free"))
-                        {
-                            gpuInfo.MemoryFree = sensor.Value.GetValueOrDefault();
-                        }
-                        if (sensor.SensorType == SensorType.Temperature)
-                        {
-                            gpuInfo.Temperature = sensor.Value.GetValueOrDefault();
-                        }
+                            { "SensorName", sensor.Name },
+                            { "Value", sensor.Value.GetValueOrDefault() },
+                            { "Type", sensor.SensorType.ToString() }
+                        };
+
+                        ((List<Dictionary<string, object>>)hardwareInfo["Sensors"]).Add(sensorInfo);
                     }
 
-                    gpuInfos.Add(gpuInfo);
+                    gpuInfoList.Add(hardwareInfo);
                 }
             }
 
-            // 返回 GPU 資訊的 JSON 字串
-            string result = JsonConvert.SerializeObject(gpuInfos, Formatting.Indented);
+            // Convert the result list into JSON format and return
+            string result = JsonConvert.SerializeObject(gpuInfoList, Formatting.Indented);
             return result;
-
         }
     }
 }

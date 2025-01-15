@@ -5,19 +5,43 @@ using System.Management;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Diagnostics;
-using OpenHardwareMonitor.Hardware;
+using LibreHardwareMonitor.Hardware;
 using System.Collections.Generic;
+using Models;
+using WidgetsDotNet.Models;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Services
 {
-    public class CPUInfo
+    public class UpdateVisitor : IVisitor
+    {
+        public void VisitComputer(IComputer computer)
+        {
+            computer.Traverse(this); // 遍歷所有硬體
+        }
+
+        public void VisitHardware(IHardware hardware)
+        {
+            hardware.Update(); // 更新硬體資訊
+            foreach (IHardware subHardware in hardware.SubHardware)
+            {
+                subHardware.Accept(this); // 也遍歷子硬體
+            }
+        }
+
+        public void VisitSensor(ISensor sensor) { } // 無需處理感測器本身
+        public void VisitParameter(IParameter parameter) { } // 無需處理參數
+    }
+
+    public class GPUInfo
     {
         public string Name { get; set; }
-        public int Cores { get; set; }
-        public int Threads { get; set; }
-        public string ClockSpeed { get; set; }
-        public float CPUUsage { get; set; }
-        public float[] CoreUsages { get; set; }
+        public float GPUUsage { get; set; }
+        public float MemoryUsage { get; set; }
+        public float MemoryTotal { get; set; }
+        public float MemoryFree { get; set; }
+        public float Temperature { get; set; }
     }
 
     internal class HardwareService
@@ -26,11 +50,19 @@ namespace Services
 
         public HardwareService()
         {
+            // 初始化硬體監控工具，啟用 CPU 和 GPU 資訊
             computer = new Computer
             {
-                CPUEnabled = true
+                IsCpuEnabled = true,
+                IsGpuEnabled = true,
+                IsMemoryEnabled = true,
+                IsMotherboardEnabled = true,
+                IsControllerEnabled = true,
+                IsNetworkEnabled = true,
+                IsStorageEnabled = true
             };
             computer.Open();
+            computer.Accept(new UpdateVisitor());
         }
 
         ~HardwareService()
@@ -44,8 +76,8 @@ namespace Services
         /// <returns>Battery level in percent</returns>
         public string GetBatteryLevelPercentage()
         {
-            PowerStatus powerStatus = SystemInformation.PowerStatus;
-            return powerStatus.BatteryLifePercent.ToString();
+            PowerStatus powerStatus = System.Windows.Forms.SystemInformation.PowerStatus;
+            return powerStatus.BatteryLifePercent.ToString("P0"); // 格式化為百分比
         }
 
         /// <summary>
@@ -55,7 +87,8 @@ namespace Services
         /// <returns>Space represented in bytes</returns>
         public long GetFreeSpaceAvailableInDrive(string driveLetter)
         {
-            return (new DriveInfo(driveLetter)).AvailableFreeSpace;
+            DriveInfo drive = new DriveInfo(driveLetter);
+            return drive.AvailableFreeSpace;
         }
 
         /// <summary>
@@ -71,49 +104,158 @@ namespace Services
         /// <returns>CPU info in JSON format</returns>
         public string GetCPUInfo()
         {
-            var cpuInfo = new CPUInfo();
+            var cpuInfo = new CPUInfoDetailed
+            {
+                CoreLoad = new Dictionary<string, float>(),
+                CoreTemperature = new Dictionary<string, float>(),
+                CoreVoltage = new Dictionary<string, float>(),
+                CoreClock = new Dictionary<string, float>()
+            };
 
             foreach (IHardware hardware in computer.Hardware)
             {
-                if (hardware.HardwareType == HardwareType.CPU)
+                if (hardware.HardwareType == HardwareType.Cpu)
                 {
                     hardware.Update();
 
-                    // 獲取 CPU 名稱
+                    // 設置 CPU 名稱
                     cpuInfo.Name = hardware.Name;
-
-                    // 儲存核心使用率的臨時列表
-                    var coreUsageList = new List<float>();
 
                     foreach (ISensor sensor in hardware.Sensors)
                     {
-                        // 獲取 CPU 總使用率
-                        if (sensor.SensorType == SensorType.Load && sensor.Name == "CPU Total")
-                        {
-                            cpuInfo.CPUUsage = sensor.Value.GetValueOrDefault();
-                        }
+                        var sensorName = sensor.Name;
+                        var sensorValue = sensor.Value;
 
-                        // 獲取每個核心的使用率
-                        if (sensor.SensorType == SensorType.Load && sensor.Name.StartsWith("CPU Core"))
+                        if (!sensorValue.HasValue) continue;
+
+                        // 根據傳感器類型進行分類記錄
+                        switch (sensor.SensorType)
                         {
-                            coreUsageList.Add(sensor.Value.GetValueOrDefault());
+                            case SensorType.Load:
+                                if (sensorName == "CPU Total")
+                                    cpuInfo.CPUUsage = sensorValue.Value;
+                                else if (sensorName.StartsWith("CPU Core Max"))
+                                    cpuInfo.MaxCoreUsage = sensorValue.Value;
+                                else if (sensorName.StartsWith("CPU Core"))
+                                    cpuInfo.CoreLoad[sensorName] = sensorValue.Value;
+                                break;
+
+                            case SensorType.Temperature:
+                                if (sensorName == "Core Max")
+                                    cpuInfo.MaxTemperature = sensorValue.Value;
+                                else if (sensorName == "CPU Package")
+                                    cpuInfo.PackageTemperature = sensorValue.Value;
+                                else if (sensorName == "Core Average")
+                                    cpuInfo.AverageTemperature = sensorValue.Value;
+                                else if (sensorName.StartsWith("CPU Core"))  // 核心溫度包含TjMax
+                                    cpuInfo.CoreTemperature[sensorName] = sensorValue.Value;
+                                break;
+
+                            case SensorType.Clock:
+                                if (sensorName.StartsWith("CPU Core"))
+                                    cpuInfo.CoreClock[sensorName] = sensorValue.Value;
+                                else if (sensorName == "Bus Speed")
+                                    cpuInfo.BusSpeed = sensorValue.Value;
+                                break;
+
+                            case SensorType.Voltage:
+                                if (sensorName.StartsWith("CPU Core #"))
+                                    cpuInfo.CoreVoltage[sensorName] = sensorValue.Value;
+                                else if (sensorName == "CPU Core")
+                                    cpuInfo.CPUVoltage = sensorValue.Value;
+                                break;
+
+                            case SensorType.Power:
+                                if (sensorName == "CPU Package")
+                                    cpuInfo.PackagePower = sensorValue.Value;
+                                else if (sensorName == "CPU Cores")
+                                    cpuInfo.CoresPower = sensorValue.Value;
+                                break;
                         }
                     }
 
-                    // 更新核心使用率和核心數
-                    cpuInfo.CoreUsages = coreUsageList.ToArray();
-                    cpuInfo.Cores = coreUsageList.Count;
+                    // 核心與執行緒數計算（假設每核心2執行緒）
+                    var filteredKeys = cpuInfo.CoreLoad.Keys
+                        .Where(key => key.StartsWith("CPU Core"))
+                        .ToList();
 
-                    // 更新執行緒數（假設每個核心有兩個執行緒，這是超執行緒技術的常見情況）
-                    cpuInfo.Threads = cpuInfo.Cores * 2;
+                    var uniqueCores = new HashSet<int>();
 
-                    // 設定假定的時脈速度（可以透過其他方式進一步查詢）
-                    cpuInfo.ClockSpeed = "Unknown";
+                    foreach (var key in filteredKeys)
+                    {
+                        // 從鍵中提取核心編號（例如 "CPU Core #1 Thread #2" 提取 1）
+                        var coreNumberMatch = Regex.Match(key, @"CPU Core #(\d+)");
+                        if (coreNumberMatch.Success)
+                        {
+                            int coreNumber = int.Parse(coreNumberMatch.Groups[1].Value);
+
+                            // 添加到集合中以確保唯一性
+                            uniqueCores.Add(coreNumber);
+                        }
+                    }
+
+                    // 設定核心數和執行緒數
+                    cpuInfo.Cores = uniqueCores.Count; // 唯一核心數
+                    cpuInfo.Threads = filteredKeys.Count; // 鍵的總數（即執行緒數）
+
                 }
             }
 
-            return JsonConvert.SerializeObject(cpuInfo);
+            string result = JsonConvert.SerializeObject(cpuInfo, Formatting.Indented);
+            return result;
         }
 
+        /// <summary>
+        /// Get all GPU information (including usage, memory, temperature, etc.)
+        /// </summary>
+        /// <returns>GPU info in JSON format</returns>
+        public string GetAllGPUInfo()
+        {
+            var gpuInfos = new List<GPUInfo>();
+
+            foreach (IHardware hardware in computer.Hardware)
+            {
+                if (hardware.HardwareType == HardwareType.GpuNvidia ||
+                    hardware.HardwareType == HardwareType.GpuAmd ||
+                    hardware.HardwareType == HardwareType.GpuIntel)
+                {
+                    hardware.Update();
+                    GPUInfo gpuInfo = new GPUInfo();
+
+                    gpuInfo.Name = hardware.Name;
+
+                    foreach (ISensor sensor in hardware.Sensors)
+                    {
+                        if (sensor.SensorType == SensorType.Load && sensor.Name == "GPU Core")
+                        {
+                            gpuInfo.GPUUsage = sensor.Value.GetValueOrDefault();
+                        }
+                        if (sensor.SensorType == SensorType.Load && sensor.Name == "GPU Memory")
+                        {
+                            gpuInfo.MemoryUsage = sensor.Value.GetValueOrDefault();
+                        }
+                        if (sensor.SensorType == SensorType.Data && sensor.Name.Contains("Memory Total"))
+                        {
+                            gpuInfo.MemoryTotal = sensor.Value.GetValueOrDefault();
+                        }
+                        if (sensor.SensorType == SensorType.Data && sensor.Name.Contains("Memory Free"))
+                        {
+                            gpuInfo.MemoryFree = sensor.Value.GetValueOrDefault();
+                        }
+                        if (sensor.SensorType == SensorType.Temperature)
+                        {
+                            gpuInfo.Temperature = sensor.Value.GetValueOrDefault();
+                        }
+                    }
+
+                    gpuInfos.Add(gpuInfo);
+                }
+            }
+
+            // 返回 GPU 資訊的 JSON 字串
+            string result = JsonConvert.SerializeObject(gpuInfos, Formatting.Indented);
+            return result;
+
+        }
     }
 }

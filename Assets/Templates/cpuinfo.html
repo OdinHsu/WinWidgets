@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="applicationTitle" content="CPU Information" />
+    <meta name="windowSize" content="634 600" />
+    <meta name="windowBorderRadius" content="55" />
+    <meta name="previewSize" content="300 100" />
+    <meta name="windowOpacity" content="178" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="wrapper">
+      <span id="cpu-name">Name:</span>
+      <span id="cpu-cores">Cores:</span>
+      <span id="cpu-threads">Threads:</span>
+      <span id="cpu-speed">Clock Speed:</span>
+      <span id="cpu-usage">Total CPU Usage:</span>
+      <div id="core-usage">
+        <p>Core Usage:</p>
+        <ul id="core-list">
+          <li>Core 1: 0%</li>
+        </ul>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    function onNativeCPUInfoEvent(cpuData) {
+      // 更新 HTML 中的元素來顯示 CPU 資訊
+      document.querySelector("#cpu-name").innerText = `Name: ${cpuData.Name}`;
+      document.querySelector("#cpu-cores").innerText = `Cores: ${cpuData.Cores}`;
+      document.querySelector("#cpu-threads").innerText = `Threads: ${cpuData.Threads}`;
+      document.querySelector("#cpu-speed").innerText = `Clock Speed: ${cpuData.ClockSpeed} MHz`;
+
+      // 更新總 CPU 使用率
+      document.querySelector("#cpu-usage").innerText = `Total CPU Usage: ${cpuData.CPUUsage.toFixed(2)}%`;
+
+      // 更新各核心使用率
+      const coreList = document.querySelector("#core-list");
+      coreList.innerHTML = '';  // 清空現有的列表
+      cpuData.CoreUsages.forEach((usage, index) => {
+        const li = document.createElement('li');
+        li.innerText = `Core ${index + 1}: ${usage.toFixed(2)}%`;
+        coreList.appendChild(li);
+      });
+    }
+  </script>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Jaldi&display=swap");
+
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    body,
+    html {
+      background-color: #323232;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .wrapper {
+      width: 585px;
+      height: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #cpu-name,
+    #cpu-cores,
+    #cpu-threads,
+    #cpu-speed,
+    #cpu-usage {
+      font-family: "Jaldi", sans-serif;
+      font-size: 22px; 
+      color: white;
+      margin: 5px; 
+      text-align: center;
+    }
+
+    #core-usage {
+      margin-top: 20px;
+    }
+
+    #core-list {
+      list-style-type: none;
+      padding: 0;
+      color: white;
+    }
+
+    #core-list li {
+      font-family: "Jaldi", sans-serif;
+      font-size: 18px;
+    }
+  </style>
+</html>

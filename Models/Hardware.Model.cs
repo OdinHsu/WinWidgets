@@ -6,6 +6,7 @@
         BatteryLevel = 1,
         SpaceAvailable = 2,
         CPUInfo = 3,
+        GPUInfo = 4,
     }
 
     internal struct PeripheralAction

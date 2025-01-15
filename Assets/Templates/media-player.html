@@ -1,140 +1,175 @@
-<!-- Updated Media Player Widget with YouTube and Local Switching Support -->
-<link href="https://vjs.zencdn.net/8.0.4/video-js.css" rel="stylesheet">
-<script src="https://vjs.zencdn.net/8.0.4/video.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-youtube/3.0.0/Youtube.min.js"></script>
-
-<style>
-  body,
-  html {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: "Courier New", Courier, monospace;
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    overflow: hidden;
-    user-select: none;
-    background: transparent; /* 完全透明背景 */
-  }
-
-  .widget-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: #1e1e1e; /* 保持黑色背景 */
-    color: #fff;
-    padding: 20px;
-    border-radius: 20px;
-    max-width: 400px;
-    min-width: 320px;
-    position: relative;  /* 防止子元素影響 */
-    z-index: 1; /* 確保 widget 在最上層 */
-    box-shadow: none; /* 移除陰影 */
-  }
-
-  .widget-header {
-    font-size: 1.8rem;
-    font-weight: bold;
-    margin-bottom: 15px;
-    text-shadow: none; /* 移除文字陰影 */
-  }
-
-  .file-input {
-    margin-top: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-  }
-
-  .file-input input {
-    background: #333;
-    color: #fff;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    text-align: center;
-  }
-
-  .file-input input:hover {
-    background: #444;
-  }
-</style>
-
-
-
-<script>
-  function loadVideoOrAudio(url, type) {
-    const player = videojs('media-player');
-    player.src({ src: url, type: type });
-    player.ready(() => {
-      player.play();
-    });
-  }
-
-  function loadYouTube(url) {
-    const player = videojs('media-player');
-    player.src({ type: 'video/youtube', src: url });
-    player.ready(() => {
-      player.play();
-    });
-  }
-
-  function loadFile(input) {
-    const file = input.files[0];
-    if (file) {
-      const fileURL = URL.createObjectURL(file);
-      loadVideoOrAudio(fileURL, file.type);
-    }
-  }
-
-  function loadURL(input) {
-    const url = input.value.trim();
-    if (!url) return; // Ignore empty inputs
-    if (url.includes('youtube.com') || url.includes('youtu.be')) {
-      loadYouTube(url);
-    } else {
-      const isAudio = url.endsWith('.mp3') || url.endsWith('.wav');
-      loadVideoOrAudio(url, isAudio ? 'audio/mp3' : 'video/mp4');
-    }
-    input.value = ''; // Clear the input field after loading
-  }
-</script>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-	<meta name ="applicationTitle" content ="media-player">
-	<meta name="windowSize" content="500 400" />
-	<meta name="previewSize" content="360 180" />
-	<meta name="windowOpacity" content="200" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Media Player Widget</title>
+    <title>Standalone Media Player</title>
+    <style>
+      body, html {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        background: #f4f4f9;
+      }
+      .widget-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #fff;
+        color: #333;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 320px;
+      }
+      .widget-header {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #ccc;
+        border-radius: 4px;
+        margin: 10px 0;
+        position: relative;
+        cursor: pointer;
+      }
+      .progress-bar-fill {
+        width: 0%;
+        height: 100%;
+        background: #4caf50;
+        border-radius: 4px;
+        transition: width 0.1s linear;
+      }
+      .controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-top: 15px;
+      }
+      .control-button {
+        font-size: 1.2rem;
+        cursor: pointer;
+        border: none;
+        background: none;
+        padding: 8px;
+        border-radius: 50%;
+        transition: background 0.2s;
+      }
+      .control-button:hover {
+        background: #e0e0e0;
+      }
+      .time-display {
+        font-size: 0.9rem;
+        color: #666;
+      }
+      .file-input {
+        margin: 10px 0;
+      }
+    </style>
   </head>
   <body>
     <div class="widget-container">
-      <div class="widget-header">Media Player</div>
+      <div class="widget-header">Standalone Media Player</div>
       <div class="file-input">
-        <!-- <input type="file" accept="audio/*,video/*" onchange="loadFile(this)" /> -->
-        <input
-          type="text"
-          placeholder="Enter audio/video/YouTube URL"
-          onkeypress="if(event.key === 'Enter') loadURL(this)"
-        />
+        <input type="file" accept="audio/*" id="audio-file" />
       </div>
-      <video
-        id="media-player"
-        class="video-js vjs-default-skin"
-        controls
-        preload="auto"
-        width="400"
-        height="200"
-        data-setup="{}"
-      ></video>
+      <div class="progress-bar" id="progress-bar">
+        <div class="progress-bar-fill" id="progress-bar-fill"></div>
+      </div>
+      <div class="time-display" id="time-display">0:00 / 0:00</div>
+      <div class="controls">
+        <button class="control-button" id="play-pause-button">▶</button>
+        <button class="control-button" id="stop-button">⏹</button>
+      </div>
     </div>
+
+    <script>
+      let audio = new Audio();
+      let isPlaying = false;
+
+      const playPauseButton = document.getElementById("play-pause-button");
+      const stopButton = document.getElementById("stop-button");
+      const progressBar = document.getElementById("progress-bar");
+      const progressBarFill = document.getElementById("progress-bar-fill");
+      const timeDisplay = document.getElementById("time-display");
+      const audioFileInput = document.getElementById("audio-file");
+
+      function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+      }
+
+      function updateProgressBar() {
+        if (!audio.duration) return;
+        const progress = (audio.currentTime / audio.duration) * 100;
+        progressBarFill.style.width = `${progress}%`;
+        timeDisplay.innerText = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+      }
+
+      function togglePlayPause() {
+        if (!audio.src) {
+          alert("Please select an audio file first.");
+          return;
+        }
+
+        if (isPlaying) {
+          audio.pause();
+          isPlaying = false;
+          playPauseButton.innerText = "▶";
+        } else {
+          audio.play();
+          isPlaying = true;
+          playPauseButton.innerText = "⏸";
+        }
+      }
+
+      function stopPlayback() {
+        if (audio.src) {
+          audio.pause();
+          audio.currentTime = 0;
+          isPlaying = false;
+          playPauseButton.innerText = "▶";
+          progressBarFill.style.width = "0%";
+          timeDisplay.innerText = "0:00 / 0:00";
+        }
+      }
+
+      function seek(event) {
+        if (!audio.duration) return;
+        const rect = progressBar.getBoundingClientRect();
+        const offsetX = event.clientX - rect.left;
+        const percentage = offsetX / rect.width;
+        audio.currentTime = percentage * audio.duration;
+      }
+
+      audioFileInput.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) {
+          const fileURL = URL.createObjectURL(file);
+          audio.src = fileURL;
+          audio.load();
+          stopPlayback();
+        }
+      });
+
+      progressBar.addEventListener("click", seek);
+      playPauseButton.addEventListener("click", togglePlayPause);
+      stopButton.addEventListener("click", stopPlayback);
+
+      audio.addEventListener("timeupdate", updateProgressBar);
+      audio.addEventListener("ended", () => {
+        isPlaying = false;
+        playPauseButton.innerText = "▶";
+      });
+    </script>
   </body>
 </html>

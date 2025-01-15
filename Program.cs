@@ -98,3 +98,140 @@ internal class Program
     }
 }
 
+//using System;
+//using System.Collections.Generic;
+//using LibreHardwareMonitor.Hardware;
+//using Newtonsoft.Json;
+//using Services;
+
+//public class UpdateVisitor : IVisitor
+//{
+//    public void VisitComputer(IComputer computer)
+//    {
+//        computer.Traverse(this);
+//    }
+
+//    public void VisitHardware(IHardware hardware)
+//    {
+//        hardware.Update();
+//        foreach (IHardware subHardware in hardware.SubHardware)
+//        {
+//            subHardware.Accept(this);
+//        }
+//    }
+
+//    public void VisitSensor(ISensor sensor) { }
+//    public void VisitParameter(IParameter parameter) { }
+//}
+
+//public class Program
+//{
+//    private readonly Computer computer;
+
+//    public Program()
+//    {
+//        computer = new Computer
+//        {
+//            IsCpuEnabled = true,
+//            IsGpuEnabled = true
+//        };
+//        computer.Open();
+//        computer.Accept(new UpdateVisitor());
+//    }
+
+//    ~Program()
+//    {
+//        computer.Close();
+//    }
+
+//    public class GPUInfo
+//    {
+//        public string Name { get; set; }
+//        public float GPUUsage { get; set; }
+//        public float MemoryUsage { get; set; }
+//        public float MemoryTotal { get; set; }
+//        public float MemoryFree { get; set; }
+//        public float Temperature { get; set; }
+//    }
+
+//    public string GetCPUInfo()
+//    {
+//        var cpuInfo = new CPUInfo();
+
+//        foreach (IHardware hardware in computer.Hardware)
+//        {
+//            if (hardware.HardwareType == HardwareType.Cpu)
+//            {
+//                hardware.Update();
+
+//                // 獲取 CPU 名稱
+//                cpuInfo.Name = hardware.Name;
+
+//                var coreUsageList = new List<float>();
+
+//                foreach (ISensor sensor in hardware.Sensors)
+//                {
+//                    var sensorName = sensor.Name;
+//                    var sensorValue = sensor.Value.GetValueOrDefault();
+//                    var sensorType = sensor.SensorType;
+
+//                    //Console.WriteLine($"Sensor Name: {sensorName}, Sensor Value: {sensorValue}, Sensor Type: {sensorType}");
+
+//                    // 獲取 CPU 總使用率
+//                    if (sensor.SensorType == SensorType.Load && sensorName == "CPU Total")
+//                    {
+//                        cpuInfo.CPUUsage = sensor.Value.GetValueOrDefault();
+//                    }
+
+//                    // 獲取每個核心的使用率
+//                    if (sensor.SensorType == SensorType.Load && sensorName.StartsWith("CPU Core"))
+//                    {
+//                        coreUsageList.Add(sensor.Value.GetValueOrDefault());
+//                    }
+//                }
+
+//                // 更新核心使用率和核心數
+//                cpuInfo.CoreUsages = coreUsageList.ToArray();
+//                cpuInfo.Cores = coreUsageList.Count;
+
+//                // 更新執行緒數（假設每個核心有兩個執行緒，這是超執行緒技術的常見情況）
+//                cpuInfo.Threads = cpuInfo.Cores * 2;
+
+//                // 設定假定的時脈速度（可以透過其他方式進一步查詢）
+//                cpuInfo.ClockSpeed = "Unknown";
+//            }
+//        }
+
+//        foreach (IHardware hardware in computer.Hardware)
+//        {
+//            Console.WriteLine("Hardware: {0}", hardware.Name);
+
+//            foreach (IHardware subhardware in hardware.SubHardware)
+//            {
+//                Console.WriteLine("\tSubhardware: {0}", subhardware.Name);
+
+//                foreach (ISensor sensor in subhardware.Sensors)
+//                {
+//                    Console.WriteLine("\t\tSensor: {0}, value: {1}", sensor.Name, sensor.Value);
+//                }
+//            }
+
+//            foreach (ISensor sensor in hardware.Sensors)
+//            {
+//                Console.WriteLine("\tSensor: {0}, value: {1}", sensor.Name, sensor.Value);
+//            }
+//        }
+
+//        string result = JsonConvert.SerializeObject(cpuInfo, Formatting.Indented);
+//        return result;
+//    }
+
+//    public static void Main()
+//    {
+//        var program = new Program();
+//        var result = program.GetCPUInfo();
+//        Console.WriteLine(result);
+//    }
+//}
+
+

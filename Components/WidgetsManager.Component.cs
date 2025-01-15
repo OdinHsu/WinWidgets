@@ -275,6 +275,7 @@ namespace Components
                 hardwareActivityHook.OnSpaceAvailable += OnSpaceAvailableChanged;
                 hardwareActivityHook.OnAnyApplicationFullscrenStatusChanged += OnAnyApplicationFullscrenStatusChanged;
                 hardwareActivityHook.OnCPUInfo += OnCPUInfoChanged;
+                hardwareActivityHook.OnGPUInfo += OnGPUInfoChanged;
             }));
         }
 
@@ -305,8 +306,16 @@ namespace Components
                     case HardwareEvent.CPUInfo:
                         this.widgetService.InjectJavascript(widget, "if (typeof onNativeCPUInfoEvent === 'function') { onNativeCPUInfoEvent(" + data + "); }");
                         break;
+                    case HardwareEvent.GPUInfo:
+                        this.widgetService.InjectJavascript(widget, "if (typeof onNativeGPUInfoEvent === 'function') { onNativeGPUInfoEvent(" + data + "); }");
+                        break;
                 }
             }
+        }
+
+        private void OnGPUInfoChanged(string gpuInfo)
+        {
+            CallJavaScriptFunction(gpuInfo, HardwareEvent.GPUInfo);
         }
 
         private void OnCPUInfoChanged(string cpuInfo)

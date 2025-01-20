@@ -137,6 +137,10 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HardwareInfoDll, Version=1.0.9151.18494, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Core\HardwareInfoDll.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -243,6 +247,7 @@
     <Content Include="Assets\Templates\stopwatch.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Core\HardwareInfoDll.dll" />
     <Content Include="Core\WidgetsDotNetCore.dll" />
     <Content Include="favicon48.ico" />
     <Content Include="icon64.ico" />
@@ -264,9 +269,6 @@
     </PackageReference>
     <PackageReference Include="HtmlAgilityPack">
       <Version>1.11.50</Version>
-    </PackageReference>
-    <PackageReference Include="LibreHardwareMonitorLib">
-      <Version>0.9.4</Version>
     </PackageReference>
     <PackageReference Include="managedwifi">
       <Version>1.1.0</Version>

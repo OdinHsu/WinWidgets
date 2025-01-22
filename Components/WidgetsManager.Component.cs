@@ -273,7 +273,6 @@ namespace Components
                 HardwareActivityHook hardwareActivityHook = new HardwareActivityHook();
                 hardwareActivityHook.OnBatteryLevel += OnBatteryLevelChanged;
                 hardwareActivityHook.OnSpaceAvailable += OnSpaceAvailableChanged;
-                hardwareActivityHook.OnAnyApplicationFullscrenStatusChanged += OnAnyApplicationFullscrenStatusChanged;
                 hardwareActivityHook.OnCPUInfo += OnCPUInfoChanged;
                 hardwareActivityHook.OnGPUInfo += OnGPUInfoChanged;
             }));

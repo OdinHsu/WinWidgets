@@ -16,6 +16,7 @@ namespace Components
     internal class WidgetComponent : WidgetModel
     {
         public bool moveModeEnabled = false;
+        private bool isTopMost = false;
 
         private IntPtr _handle;
         private string _widgetPath;
@@ -120,6 +121,7 @@ namespace Components
 
                 AppendWidget(window, htmlPath);
                 window.TopMost = topMost;
+                isTopMost = topMost;
                 window.ShowDialog();
             }).Start();
         }
@@ -161,7 +163,23 @@ namespace Components
 
         private void OnBrowserMessageReceived(object sender, JavascriptMessageReceivedEventArgs e)
         {
-            this.widgetService.SetConfiguration(this, e.Message.ToString());
+            string message = e.Message.ToString();
+
+            if (message == "disableTopMost")
+            {
+                isTopMost = window.TopMost;  // 紀錄原本的
+                window.Invoke(new Action(() => window.TopMost = false));
+            }
+            else if (message == "enableTopMost")
+            {
+                // 恢復 TopMost
+                window.Invoke(new Action(() => window.TopMost = isTopMost));
+            }
+            else
+            {
+                // 處理其他消息，例如更新配置
+                this.widgetService.SetConfiguration(this, message);
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Services;
 using System.Timers;
+using HardwareInfoDll;  // 引用 C++/CLI DLL
 
 namespace Hooks
 {
@@ -25,25 +26,28 @@ namespace Hooks
         public delegate void GPUInfoHandler(string gpuInfo);
         public event GPUInfoHandler OnGPUInfo;
 
+        // 建立 HardwareInfo 物件
+        HardwareInfo hardwareInfo;
+
         public HardwareActivityHook() 
         {
+            hardwareInfo = new HardwareInfo();
+            hardwareInfo.StartSaveAllHardwareThread(2000);
+
             this.timerService.CreateTimer(1000, OnBatteryLevelEvent, true, true);
             this.timerService.CreateTimer(1000, OnSpaceAvailableInDrivesEvent, true, true);
-            //this.timerService.CreateTimer(1000, OnAnyApplicationFullscreenStatusEvent, true, true);
-            this.timerService.CreateTimer(1000, OnCPUInfoEvent, true, true);
-            this.timerService.CreateTimer(1000, OnGPUInfoEvent, true, true);
+            this.timerService.CreateTimer(1000, OnHardwareInfoEvent, true, true);
         }
 
-        private void OnGPUInfoEvent(object sender, ElapsedEventArgs e)
+        private void OnHardwareInfoEvent(object sender, ElapsedEventArgs e)
         {
-            string gpuInfo = this.hardwareService.GetAllGPUInfo();
-            OnGPUInfo?.Invoke(gpuInfo);
-        }
-
-        private void OnCPUInfoEvent(object sender, ElapsedEventArgs e)
-        {
-            string cpuInfo = this.hardwareService.GetCPUInfo();
+            // CPU info event
+            string cpuInfo = this.hardwareService.GetCPUInfo(hardwareInfo);
             OnCPUInfo?.Invoke(cpuInfo);
+
+            // GPU info event
+            string gpuInfo = this.hardwareService.GetAllGPUInfo(hardwareInfo);
+            OnGPUInfo?.Invoke(gpuInfo);
         }
 
         private void OnBatteryLevelEvent(object sender, ElapsedEventArgs e)
@@ -56,17 +60,6 @@ namespace Hooks
         {
             long freeSpace = this.hardwareService.GetFreeSpaceAvailableInDrive("C");
             OnSpaceAvailable.Invoke(freeSpace);
-        }
-
-        private void OnAnyApplicationFullscreenStatusEvent(object sender, ElapsedEventArgs e)
-        {
-            bool fullscreenStatus = HardwareService.isAnyApplicationFullscreen();
-
-            if (fullscreenStatus != this.lastAnyApplicationFullscreenStatus)
-            {
-                this.lastAnyApplicationFullscreenStatus = fullscreenStatus;
-                OnAnyApplicationFullscrenStatusChanged.Invoke(fullscreenStatus);
-            }
         }
     }
 }

@@ -128,7 +128,7 @@ namespace Components
 
         private void OnBrowserInitialized(object sender, EventArgs e)
         {
-            this.timerService.CreateTimer(1, OnBrowserUpdateTick, true, true);
+            this.timerService.CreateTimer(16, OnBrowserUpdateTick, true, true);  // 每 16ms（大約 60fps）
             this.widgetService.InjectJavascript(
                 this, 
                 $"if (typeof onGetConfiguration === 'function') onGetConfiguration({JsonConvert.SerializeObject(configuration.settings)});",
@@ -139,14 +139,19 @@ namespace Components
 
         private void OnBrowserUpdateTick(object sender, ElapsedEventArgs e)
         {
-            if (this.moveModeEnabled)
-            {
-                POINT pos;
-                GetCursorPos(out pos);
+            // 檢查是否處於移動模式
+            if (!this.moveModeEnabled) return;
 
-                window.Invoke(new MethodInvoker(delegate ()
+            // 獲取滑鼠當前位置
+            if (GetCursorPos(out POINT pos))
+            {
+                // 使用 BeginInvoke 確保 UI 操作執行在正確執行緒，使用 BeginInvoke，避免阻塞 UI 執行緒
+                window.BeginInvoke(new Action(() =>
                 {
+                    // 更新視窗位置
                     window.Location = new Point(pos.X - width / 2, pos.Y - height / 2);
+
+                    // 更新當前視窗的 session 配置
                     this.widgetService.AddOrUpdateSession(this.htmlPath, window.Location, window.TopMost);
                 }));
             }

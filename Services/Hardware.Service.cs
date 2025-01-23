@@ -52,8 +52,16 @@ namespace Services
         /// <returns>GPU info in JSON format</returns>
         public string GetAllGPUInfo(HardwareInfo hardwareInfo)
         {
-            string result = hardwareInfo.GetGPUInfo();
-            return result;
+            return hardwareInfo.GetGPUInfo();
+        }
+
+        /// <summary>
+        /// Get all Ram information (including usage, memory, etc.)
+        /// </summary>
+        /// <return>RAM size in bytes</return>
+        public string GetRAMInfo(HardwareInfo hardwareInfo)
+        {
+            return hardwareInfo.GetMemoryInfo();
         }
     }
 }

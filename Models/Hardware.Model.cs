@@ -7,6 +7,7 @@
         SpaceAvailable = 2,
         CPUInfo = 3,
         GPUInfo = 4,
+        RAMInfo = 5
     }
 
     internal struct PeripheralAction

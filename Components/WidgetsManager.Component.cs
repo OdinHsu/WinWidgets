@@ -275,6 +275,7 @@ namespace Components
                 hardwareActivityHook.OnSpaceAvailable += OnSpaceAvailableChanged;
                 hardwareActivityHook.OnCPUInfo += OnCPUInfoChanged;
                 hardwareActivityHook.OnGPUInfo += OnGPUInfoChanged;
+                hardwareActivityHook.OnRAMInfo += OnRamInfoChanged;
             }));
         }
 
@@ -308,8 +309,16 @@ namespace Components
                     case HardwareEvent.GPUInfo:
                         this.widgetService.InjectJavascript(widget, "if (typeof onNativeGPUInfoEvent === 'function') { onNativeGPUInfoEvent(" + data + "); }");
                         break;
+                    case HardwareEvent.RAMInfo:
+                        this.widgetService.InjectJavascript(widget, "if (typeof onNativeRAMInfoEvent === 'function') { onNativeRAMInfoEvent(" + data + "); }");
+                        break;
                 }
             }
+        }
+
+        private void OnRamInfoChanged(string ramInfo)
+        {
+            CallJavaScriptFunction(ramInfo, HardwareEvent.RAMInfo);
         }
 
         private void OnGPUInfoChanged(string gpuInfo)

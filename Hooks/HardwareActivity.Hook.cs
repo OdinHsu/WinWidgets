@@ -22,6 +22,10 @@ namespace Hooks
         public delegate void GPUInfoHandler(string gpuInfo);
         public event GPUInfoHandler OnGPUInfo;
 
+        // RAM info event
+        public delegate void RAMInfoHandler(string ramInfo);
+        public event RAMInfoHandler OnRAMInfo;
+
         // 建立 HardwareInfo 物件
         HardwareInfo hardwareInfo;
 
@@ -42,6 +46,10 @@ namespace Hooks
             // GPU info event
             string gpuInfo = this.hardwareService.GetAllGPUInfo(hardwareInfo);
             OnGPUInfo?.Invoke(gpuInfo);
+
+            // RAM info event
+            string ramInfo = this.hardwareService.GetRAMInfo(hardwareInfo);
+            OnRAMInfo?.Invoke(ramInfo);
 
             // battery level event
             string level = this.hardwareService.GetBatteryLevelPercentage();

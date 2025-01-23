@@ -1,106 +1,177 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta name="applicationTitle" content="CPU Information" />
-    <meta name="windowSize" content="634 600" />
-    <meta name="windowBorderRadius" content="55" />
-    <meta name="previewSize" content="300 100" />
-    <meta name="windowOpacity" content="178" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-  </head>
-  <body>
-    <div class="wrapper">
-      <span id="cpu-name">Name:</span>
-      <span id="cpu-cores">Cores:</span>
-      <span id="cpu-threads">Threads:</span>
-      <span id="cpu-speed">Clock Speed:</span>
-      <span id="cpu-usage">Total CPU Usage:</span>
-      <div id="core-usage">
-        <p>Core Usage:</p>
-        <ul id="core-list">
-          <li>Core 1: 0%</li>
-        </ul>
-      </div>
-    </div>
-  </body>
+<html lang="en">
 
-  <script>
-    function onNativeCPUInfoEvent(cpuData) {
-      // 更新 HTML 中的元素來顯示 CPU 資訊
-      document.querySelector("#cpu-name").innerText = `Name: ${cpuData.Name}`;
-      document.querySelector("#cpu-cores").innerText = `Cores: ${cpuData.Cores}`;
-      document.querySelector("#cpu-threads").innerText = `Threads: ${cpuData.Threads}`;
-      document.querySelector("#cpu-speed").innerText = `Clock Speed: ${cpuData.ClockSpeed} MHz`;
-
-      // 更新總 CPU 使用率
-      document.querySelector("#cpu-usage").innerText = `Total CPU Usage: ${cpuData.CPUUsage.toFixed(2)}%`;
-
-      // 更新各核心使用率
-      const coreList = document.querySelector("#core-list");
-      coreList.innerHTML = '';  // 清空現有的列表
-      cpuData.CoreUsages.forEach((usage, index) => {
-        const li = document.createElement('li');
-        li.innerText = `Core ${index + 1}: ${usage.toFixed(2)}%`;
-        coreList.appendChild(li);
-      });
-    }
-  </script>
-
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="applicationTitle" content="CPU Information" />
+  <meta name="windowSize" content="500 250" />
+  <meta name="windowBorderRadius" content="100" />
+  <meta name="previewSize" content="300 100" />
+  <meta name="windowOpacity" content="178" />
+  <title>CPU Widget</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    @import url("https://fonts.googleapis.com/css2?family=Jaldi&display=swap");
-
-    * {
+    body {
+      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-    }
-
-    body,
-    html {
-      background-color: #323232;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      overflow: hidden;
+      background: linear-gradient(135deg, #1c1c3c, #2e2e58);
     }
 
-    .wrapper {
-      width: 585px;
-      height: 400px;
+    .widget {
+      width: 360px;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 10px;
+      color: #fff;
     }
 
-    #cpu-name,
-    #cpu-cores,
-    #cpu-threads,
-    #cpu-speed,
-    #cpu-usage {
-      font-family: "Jaldi", sans-serif;
-      font-size: 22px; 
-      color: white;
-      margin: 5px; 
-      text-align: center;
+    .widget-data {
+      flex: 1;
+      font-size: 14px;
+      line-height: 1.5;
+      padding-right: 10px;
     }
 
-    #core-usage {
-      margin-top: 20px;
+    .chart-container {
+      width: 120px;
+      height: 40px;
+      margin-top: -30px;
     }
 
-    #core-list {
-      list-style-type: none;
-      padding: 0;
-      color: white;
-    }
-
-    #core-list li {
-      font-family: "Jaldi", sans-serif;
-      font-size: 18px;
+    canvas {
+      max-width: 100%;
+      height: 100%;
     }
   </style>
+</head>
+
+<body>
+  <div class="widget">
+    <div class="widget-data" id="cpuData">
+      <p><strong>CPU:</strong> -</p>
+      <p><strong>Utilization:</strong> -</p>
+      <p><strong>Avg Temp:</strong> -</p>
+      <p><strong>Power:</strong> -</p>
+    </div>
+    <div class="chart-container">
+      <canvas id="cpuUsageChart"></canvas>
+    </div>
+  </div>
+
+  <script>
+    class CircularBuffer {
+      constructor(size) {
+        this.buffer = new Array(size);
+        this.size = size;
+        this.start = 0;
+        this.count = 0;
+      }
+
+      push(value) {
+        this.buffer[(this.start + this.count) % this.size] = value;
+        if (this.count < this.size) {
+          this.count++;
+        } else {
+          this.start = (this.start + 1) % this.size; // 移動起點
+        }
+      }
+
+      toArray() {
+        return Array.from({ length: this.count }, (_, i) =>
+          this.buffer[(this.start + i) % this.size]
+        );
+      }
+    }
+
+    let chartInstance;
+    const maxHistoryLength = 15; // 折線圖顯示的數據點數量
+    const cpuUsageHistory = new CircularBuffer(maxHistoryLength);
+
+    function onNativeCPUInfoEvent(cpuData) {
+      const cpuDataDiv = document.getElementById('cpuData');
+      cpuDataDiv.innerHTML = ` 
+        <p><strong>CPU:</strong> ${cpuData.Name}</p>
+        <p><strong>Utilization:</strong> ${cpuData.CPUUsage.toFixed(2)}%</p>
+        <p><strong>Avg Temp:</strong> ${cpuData.AverageTemperature}°C (Max: ${cpuData.MaxTemperature}°C)</p>
+        <p><strong>Power:</strong> ${cpuData.PackagePower.toFixed(2)}W (Cores: ${cpuData.CoresPower.toFixed(2)}W)</p>
+      `;
+
+
+      // 添加新數據
+      cpuUsageHistory.push(cpuData.CPUUsage);
+
+      // 獲取當前數據陣列
+      const currentData = cpuUsageHistory.toArray();
+
+      if (chartInstance) {
+        chartInstance.data.datasets[0].data = currentData;
+        chartInstance.update();
+      } else {
+        const ctx = document.getElementById('cpuUsageChart').getContext('2d');
+        chartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: Array(maxHistoryLength).fill(''), // 隱藏 x 軸標籤
+            datasets: [
+              {
+                data: currentData,
+                borderColor: '#00bcd4',
+                backgroundColor: 'rgba(0, 188, 212, 0.2)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 0, // 移除圈圈
+                pointHoverRadius: 0 // 移除滑鼠懸停時的圈圈
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                display: false // 隱藏 x 軸
+              },
+              y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                  display: false // 隱藏 y 軸刻度
+                },
+                grid: {
+                  display: false // 隱藏 y 軸網格線
+                }
+              }
+            },
+            plugins: {
+              legend: { display: false }, // 隱藏圖例
+              tooltip: { enabled: false }, // 禁用提示框
+              // title: {
+              //   display: true, // 顯示標題
+              //   text: 'CPU Utilization', // 標題文字
+              //   font: {
+              //     size: 10 // 標題字體大小
+              //   },
+              //   padding: {
+              //     top: 2,
+              //     bottom: 5 // 標題與圖表的間距
+              //   },
+              //   color: '#FFFFFF' // 設定標題顏色
+              // }
+            }
+          }
+        });
+      }
+    }
+  </script>
+</body>
+
 </html>

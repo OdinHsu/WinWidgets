@@ -1,0 +1,132 @@
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #1 Thread #1, Value: 28.505451, Type: Load
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #1 Thread #2, Value: 32.18615, Type: Load
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #2 Thread #1, Value: 28.857445, Type: Load
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #2 Thread #2, Value: 9.956074, Type: Load
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #3 Thread #1, Value: 0, Type: Load
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #3 Thread #2, Value: 0, Type: Load
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #4 Thread #1, Value: 0, Type: Load
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #4 Thread #2, Value: 0, Type: Load
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Total, Value: 9.696627, Type: Load
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core Max, Value: 32.18615, Type: Load
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: Core Max, Value: 70, Type: Temperature
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: Core Average, Value: 67.5, Type: Temperature
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #1, Value: 70, Type: Temperature
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #2, Value: 69, Type: Temperature
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #3, Value: 65, Type: Temperature
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #4, Value: 66, Type: Temperature
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Package, Value: 72, Type: Temperature
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #1 Distance to TjMax, Value: 30, Type: Temperature
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #2 Distance to TjMax, Value: 31, Type: Temperature
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #3 Distance to TjMax, Value: 35, Type: Temperature
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #4 Distance to TjMax, Value: 34, Type: Temperature
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #1, Value: 4233.601, Type: Clock
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #2, Value: 4233.601, Type: Clock
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #3, Value: 1915.2004, Type: Clock
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #4, Value: 1512.0004, Type: Clock
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Package, Value: 7.916073, Type: Power
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Cores, Value: 5.159108, Type: Power
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Memory, Value: 0, Type: Power
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Platform, Value: 0, Type: Power
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core, Value: 0.664917, Type: Voltage
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #1, Value: 0.6549072, Type: Voltage
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #2, Value: 0.67492676, Type: Voltage
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #3, Value: 0.6624756, Type: Voltage
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: CPU Core #4, Value: 0.664917, Type: Voltage
+Hardware: 11th Gen Intel Core i5-1135G7, HardwareType: Cpu, Sensor: Bus Speed, Value: 100.800026, Type: Clock
+Hardware: Generic Memory, HardwareType: Memory, Sensor: Memory Used, Value: 15.404648, Type: Data
+Hardware: Generic Memory, HardwareType: Memory, Sensor: Memory Available, Value: 8.379829, Type: Data
+Hardware: Generic Memory, HardwareType: Memory, Sensor: Memory, Value: 64.767654, Type: Load
+Hardware: Generic Memory, HardwareType: Memory, Sensor: Virtual Memory Used, Value: 23.445492, Type: Data
+Hardware: Generic Memory, HardwareType: Memory, Sensor: Virtual Memory Available, Value: 41.13586, Type: Data
+Hardware: Generic Memory, HardwareType: Memory, Sensor: Virtual Memory, Value: 36.303814, Type: Load
+Hardware: NVIDIA GeForce MX350, HardwareType: GpuNvidia, Sensor: GPU Core, Value: 64, Type: Temperature
+Hardware: NVIDIA GeForce MX350, HardwareType: GpuNvidia, Sensor: GPU Core, Value: 139, Type: Clock
+Hardware: NVIDIA GeForce MX350, HardwareType: GpuNvidia, Sensor: GPU Memory, Value: 405, Type: Clock
+Hardware: NVIDIA GeForce MX350, HardwareType: GpuNvidia, Sensor: GPU Core, Value: 1, Type: Load
+Hardware: NVIDIA GeForce MX350, HardwareType: GpuNvidia, Sensor: GPU Memory Controller, Value: 0, Type: Load
+Hardware: NVIDIA GeForce MX350, HardwareType: GpuNvidia, Sensor: GPU Video Engine, Value: 0, Type: Load
+Hardware: NVIDIA GeForce MX350, HardwareType: GpuNvidia, Sensor: GPU Bus, Value: 2, Type: Load
+Hardware: NVIDIA GeForce MX350, HardwareType: GpuNvidia, Sensor: GPU Hot Spot, Value: 69, Type: Temperature
+Hardware: NVIDIA GeForce MX350, HardwareType: GpuNvidia, Sensor: GPU Memory Total, Value: 2048, Type: SmallData
+Hardware: NVIDIA GeForce MX350, HardwareType: GpuNvidia, Sensor: GPU Memory Free, Value: 1979, Type: SmallData
+Hardware: NVIDIA GeForce MX350, HardwareType: GpuNvidia, Sensor: GPU Memory Used, Value: 68, Type: SmallData
+Hardware: NVIDIA GeForce MX350, HardwareType: GpuNvidia, Sensor: GPU Memory, Value: 3.332901, Type: Load
+Hardware: NVIDIA GeForce MX350, HardwareType: GpuNvidia, Sensor: GPU PCIe Rx, Value: 0, Type: Throughput
+Hardware: NVIDIA GeForce MX350, HardwareType: GpuNvidia, Sensor: GPU PCIe Tx, Value: 0, Type: Throughput
+Hardware: Intel(R) Iris(R) Xe Graphics, HardwareType: GpuIntel, Sensor: GPU Power, Value: 0.3433086, Type: Power
+Hardware: Intel(R) Iris(R) Xe Graphics, HardwareType: GpuIntel, Sensor: D3D Shared Memory Total, Value: 12177.652, Type: SmallData
+Hardware: Intel(R) Iris(R) Xe Graphics, HardwareType: GpuIntel, Sensor: D3D Shared Memory Free, Value: 11477.535, Type: SmallData
+Hardware: Intel(R) Iris(R) Xe Graphics, HardwareType: GpuIntel, Sensor: D3D Shared Memory Used, Value: 700.1172, Type: SmallData
+Hardware: Intel(R) Iris(R) Xe Graphics, HardwareType: GpuIntel, Sensor: D3D 3D, Value: 2.6321652, Type: Load
+Hardware: Intel(R) Iris(R) Xe Graphics, HardwareType: GpuIntel, Sensor: D3D Video Decode, Value: 0, Type: Load
+Hardware: Intel(R) Iris(R) Xe Graphics, HardwareType: GpuIntel, Sensor: D3D Copy, Value: 0, Type: Load
+Hardware: Intel(R) Iris(R) Xe Graphics, HardwareType: GpuIntel, Sensor: D3D Video Processing, Value: 0, Type: Load
+Hardware: Intel(R) Iris(R) Xe Graphics, HardwareType: GpuIntel, Sensor: D3D Video Decode, Value: 0, Type: Load
+Hardware: Intel(R) Iris(R) Xe Graphics, HardwareType: GpuIntel, Sensor: D3D Other, Value: 0, Type: Load
+Hardware: Intel(R) Iris(R) Xe Graphics, HardwareType: GpuIntel, Sensor: D3D Other, Value: 0, Type: Load
+Hardware: Intel(R) Iris(R) Xe Graphics, HardwareType: GpuIntel, Sensor: D3D Other, Value: 0, Type: Load
+Hardware: Intel(R) Iris(R) Xe Graphics, HardwareType: GpuIntel, Sensor: D3D Other, Value: 0, Type: Load
+Hardware: Intel(R) Iris(R) Xe Graphics, HardwareType: GpuIntel, Sensor: D3D Overlay, Value: 0, Type: Load
+Hardware: Intel(R) Iris(R) Xe Graphics, HardwareType: GpuIntel, Sensor: D3D GDI Render, Value: 0, Type: Load
+Hardware: Intel(R) Iris(R) Xe Graphics, HardwareType: GpuIntel, Sensor: D3D Video Processing, Value: 0, Type: Load
+Hardware: Intel(R) Iris(R) Xe Graphics, HardwareType: GpuIntel, Sensor: D3D Other, Value: 0, Type: Load
+Hardware: NVMe WDC PC SN530 SDBPNPZ-256G-1114, HardwareType: Storage, Sensor: Used Space, Value: 76.133545, Type: Load
+Hardware: NVMe WDC PC SN530 SDBPNPZ-256G-1114, HardwareType: Storage, Sensor: Read Activity, Value: 3.5437925, Type: Load
+Hardware: NVMe WDC PC SN530 SDBPNPZ-256G-1114, HardwareType: Storage, Sensor: Write Activity, Value: 0, Type: Load
+Hardware: NVMe WDC PC SN530 SDBPNPZ-256G-1114, HardwareType: Storage, Sensor: Total Activity, Value: 3.6248126, Type: Load
+Hardware: NVMe WDC PC SN530 SDBPNPZ-256G-1114, HardwareType: Storage, Sensor: Read Rate, Value: 116526.22, Type: Throughput
+Hardware: NVMe WDC PC SN530 SDBPNPZ-256G-1114, HardwareType: Storage, Sensor: Write Rate, Value: 0, Type: Throughput
+Hardware: TOSHIBA MQ04ABF100, HardwareType: Storage, Sensor: Used Space, Value: 47.69379, Type: Load
+Hardware: TOSHIBA MQ04ABF100, HardwareType: Storage, Sensor: Read Activity, Value: 0, Type: Load
+Hardware: TOSHIBA MQ04ABF100, HardwareType: Storage, Sensor: Write Activity, Value: 0, Type: Load
+Hardware: TOSHIBA MQ04ABF100, HardwareType: Storage, Sensor: Total Activity, Value: 0.27719873, Type: Load
+Hardware: TOSHIBA MQ04ABF100, HardwareType: Storage, Sensor: Read Rate, Value: 0, Type: Throughput
+Hardware: TOSHIBA MQ04ABF100, HardwareType: Storage, Sensor: Write Rate, Value: 0, Type: Throughput
+Hardware: Radmin VPN, HardwareType: Network, Sensor: Data Uploaded, Value: 0.00027391408, Type: Data
+Hardware: Radmin VPN, HardwareType: Network, Sensor: Data Downloaded, Value: 4.3408945E-06, Type: Data
+Hardware: Radmin VPN, HardwareType: Network, Sensor: Upload Speed, Value: 0, Type: Throughput
+Hardware: Radmin VPN, HardwareType: Network, Sensor: Download Speed, Value: 0, Type: Throughput
+Hardware: Radmin VPN, HardwareType: Network, Sensor: Network Utilization, Value: 0, Type: Load
+Hardware: VMware Network Adapter VMnet1, HardwareType: Network, Sensor: Data Uploaded, Value: 1.0719523E-06, Type: Data
+Hardware: VMware Network Adapter VMnet1, HardwareType: Network, Sensor: Data Downloaded, Value: 1.3038516E-08, Type: Data
+Hardware: VMware Network Adapter VMnet1, HardwareType: Network, Sensor: Upload Speed, Value: 0, Type: Throughput
+Hardware: VMware Network Adapter VMnet1, HardwareType: Network, Sensor: Download Speed, Value: 0, Type: Throughput
+Hardware: VMware Network Adapter VMnet1, HardwareType: Network, Sensor: Network Utilization, Value: 0, Type: Load
+Hardware: VMware Network Adapter VMnet8, HardwareType: Network, Sensor: Data Uploaded, Value: 1.7173588E-06, Type: Data
+Hardware: VMware Network Adapter VMnet8, HardwareType: Network, Sensor: Data Downloaded, Value: 1.3038516E-08, Type: Data
+Hardware: VMware Network Adapter VMnet8, HardwareType: Network, Sensor: Upload Speed, Value: 0, Type: Throughput
+Hardware: VMware Network Adapter VMnet8, HardwareType: Network, Sensor: Download Speed, Value: 0, Type: Throughput
+Hardware: VMware Network Adapter VMnet8, HardwareType: Network, Sensor: Network Utilization, Value: 0, Type: Load
+Hardware: Wi-Fi, HardwareType: Network, Sensor: Data Uploaded, Value: 0.027635133, Type: Data
+Hardware: Wi-Fi, HardwareType: Network, Sensor: Data Downloaded, Value: 0.362167, Type: Data
+Hardware: Wi-Fi, HardwareType: Network, Sensor: Upload Speed, Value: 0, Type: Throughput
+Hardware: Wi-Fi, HardwareType: Network, Sensor: Download Speed, Value: 0, Type: Throughput
+Hardware: Wi-Fi, HardwareType: Network, Sensor: Network Utilization, Value: 0, Type: Load
+Hardware: 乙太網路, HardwareType: Network, Sensor: Data Uploaded, Value: 0, Type: Data
+Hardware: 乙太網路, HardwareType: Network, Sensor: Data Downloaded, Value: 0, Type: Data
+Hardware: 乙太網路, HardwareType: Network, Sensor: Upload Speed, Value: 0, Type: Throughput
+Hardware: 乙太網路, HardwareType: Network, Sensor: Download Speed, Value: 0, Type: Throughput
+Hardware: 乙太網路, HardwareType: Network, Sensor: Network Utilization, Value: 0, Type: Load
+Hardware: 區域連線* 1, HardwareType: Network, Sensor: Data Uploaded, Value: 0, Type: Data
+Hardware: 區域連線* 1, HardwareType: Network, Sensor: Data Downloaded, Value: 0, Type: Data
+Hardware: 區域連線* 1, HardwareType: Network, Sensor: Upload Speed, Value: 0, Type: Throughput
+Hardware: 區域連線* 1, HardwareType: Network, Sensor: Download Speed, Value: 0, Type: Throughput
+Hardware: 區域連線* 1, HardwareType: Network, Sensor: Network Utilization, Value: 0, Type: Load
+Hardware: 區域連線* 3, HardwareType: Network, Sensor: Data Uploaded, Value: 0, Type: Data
+Hardware: 區域連線* 3, HardwareType: Network, Sensor: Data Downloaded, Value: 0, Type: Data
+Hardware: 區域連線* 3, HardwareType: Network, Sensor: Upload Speed, Value: 0, Type: Throughput
+Hardware: 區域連線* 3, HardwareType: Network, Sensor: Download Speed, Value: 0, Type: Throughput
+Hardware: 區域連線* 3, HardwareType: Network, Sensor: Network Utilization, Value: 0, Type: Load
+Hardware: 藍牙網路連線, HardwareType: Network, Sensor: Data Uploaded, Value: 0, Type: Data
+Hardware: 藍牙網路連線, HardwareType: Network, Sensor: Data Downloaded, Value: 0, Type: Data
+Hardware: 藍牙網路連線, HardwareType: Network, Sensor: Upload Speed, Value: 0, Type: Throughput
+Hardware: 藍牙網路連線, HardwareType: Network, Sensor: Download Speed, Value: 0, Type: Throughput
+Hardware: 藍牙網路連線, HardwareType: Network, Sensor: Network Utilization, Value: 0, Type: Load
+Hardware: AP19B8K, HardwareType: Battery, Sensor: Designed Capacity, Value: 41771, Type: Energy
+Hardware: AP19B8K, HardwareType: Battery, Sensor: Fully-Charged Capacity, Value: 10474, Type: Energy
+Hardware: AP19B8K, HardwareType: Battery, Sensor: Degradation Level, Value: 74.925186, Type: Level
+Hardware: AP19B8K, HardwareType: Battery, Sensor: Remaining Capacity, Value: 10474, Type: Energy
+Hardware: AP19B8K, HardwareType: Battery, Sensor: Charge Level, Value: 100, Type: Level
+Hardware: AP19B8K, HardwareType: Battery, Sensor: Voltage, Value: 12.356, Type: Voltage
+Hardware: AP19B8K, HardwareType: Battery, Sensor: Charge/Discharge Current, Value: 0, Type: Current
+Hardware: AP19B8K, HardwareType: Battery, Sensor: Charge/Discharge Rate, Value: 0, Type: Power

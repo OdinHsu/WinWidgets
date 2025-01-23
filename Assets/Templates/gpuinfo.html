@@ -1,78 +1,181 @@
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="applicationTitle" content="GPU Information" />
-    <meta name="windowSize" content="634 600" />
-    <meta name="windowBorderRadius" content="55" />
+    <meta name="windowSize" content="500 250" />
+    <meta name="windowBorderRadius" content="100" />
     <meta name="previewSize" content="300 100" />
     <meta name="windowOpacity" content="178" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-  </head>
-  <body>
-    <div class="wrapper">
-      <span id="gpu-name">Name:</span>
-      <span id="gpu-usage">GPU Usage:</span>
-      <span id="gpu-memory-usage">Memory Usage:</span>
-      <span id="gpu-memory-free">Memory Free:</span>
-      <span id="gpu-memory-total">Memory Total:</span>
-      <span id="gpu-temperature">GPU Temperature:</span>
+    <title>GPU Widget</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #1c1c3c, #2e2e58);
+        }
+
+        .widget {
+            width: 300px;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 15px;
+            color: #fff;
+            background-color: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .widget-header {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #00bcd4;
+            text-align: center;
+        }
+
+        .widget-data {
+            margin: 15px 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            background-color: #333;
+            border: 1px solid #888;
+            color: #fff;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            display: block;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="widget">
+        <div class="widget-header">GPU Overview</div>
+        <select id="gpuSelect"></select>
+        <div class="widget-data" id="gpuData">
+            <p><strong>GPU:</strong> -</p>
+            <p><strong>Usage:</strong> -</p>
+            <p><strong>Temperature:</strong> -</p>
+            <p><strong>Memory Used:</strong> -</p>
+            <p><strong>Memory Total:</strong> -</p>
+            <p><strong>Memory Free:</strong> -</p>
+        </div>
     </div>
-  </body>
 
-  <script>
-    // 用來接收來自 C# 的 GPU 資訊並更新頁面
-    function onNativeGPUInfoEvent(gpuData) {
-      // 解析 GPU 資訊並更新 HTML 元素
-      document.querySelector("#gpu-name").innerText = `Name: ${gpuData.Name}`;
-      document.querySelector("#gpu-usage").innerText = `GPU Usage: ${gpuData.GPUUsage.toFixed(2)}%`;
-      document.querySelector("#gpu-memory-usage").innerText = `Memory Usage: ${gpuData.MemoryUsage.toFixed(2)}%`;
-      document.querySelector("#gpu-memory-free").innerText = `Memory Free: ${gpuData.MemoryFree.toFixed(2)} MB`;
-      document.querySelector("#gpu-memory-total").innerText = `Memory Total: ${gpuData.MemoryTotal.toFixed(2)} MB`;
-      document.querySelector("#gpu-temperature").innerText = `GPU Temperature: ${gpuData.Temperature.toFixed(2)} °C`;
-    }
-  </script>
+    <script>
+        let gpuSelect = document.getElementById('gpuSelect');
+        let gpuData = {};
+        let isInitialized = false;
 
-  <style>
-    @import url("https://fonts.googleapis.com/css2?family=Jaldi&display=swap");
+        // 更新 GPU 資訊
+        function updateGpuInfo(gpuInfo) {
+            const gpuDataDiv = document.getElementById('gpuData');
+            gpuDataDiv.innerHTML = ` 
+                <p><strong>GPU:</strong> ${gpuInfo.Name}</p>
+                <p><strong>Usage:</strong> ${gpuInfo.gpuUtilization.toFixed(2)}%</p>
+                <p><strong>Temperature:</strong> ${gpuInfo.gpuTemperature}°C</p>
+                <p><strong>Memory Used:</strong> ${gpuInfo.gpuMemoryUsed}MB</p>
+                <p><strong>Memory Total:</strong> ${gpuInfo.gpuMemoryTotal}MB</p>
+                <p><strong>Memory Free:</strong> ${gpuInfo.gpuMemoryFree}MB</p>
+            `;
+        }
 
-    * {
-      margin: 0;
-      padding: 0;
-    }
+        // 當選擇不同 GPU 時更新顯示
+        gpuSelect.addEventListener('change', () => {
+            const selectedGpu = gpuSelect.value;
+            const selectedGpuInfo = gpuData[selectedGpu];
+            updateGpuInfo(selectedGpuInfo);
+        });
 
-    body,
-    html {
-      background-color: #323232;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-    }
+        gpuSelect.addEventListener('focus', () => {
+            CefSharp.PostMessage('disableTopMost');
+        });
 
-    .wrapper {
-      width: 585px;
-      height: 350px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
+        gpuSelect.addEventListener('blur', () => {
+            CefSharp.PostMessage('enableTopMost');
+        });
 
-    #gpu-name,
-    #gpu-usage,
-    #gpu-memory-usage,
-    #gpu-memory-free,
-    #gpu-memory-total,
-    #gpu-temperature {
-      font-family: "Jaldi", sans-serif;
-      font-size: 22px; 
-      color: white;
-      margin: 5px; 
-      text-align: center;
-    }
-  </style>
+        // 處理後端資料更新
+        function onNativeGPUInfoEvent(rawData) {
+            const cleanedData = cleanData(rawData);
+            gpuData = cleanedData;
+
+            if (!isInitialized) {
+                initializeGpuSelect(cleanedData);
+                isInitialized = true;
+            }
+
+            const selectedGpu = gpuSelect.value;
+            const selectedGpuInfo = cleanedData[selectedGpu];
+            updateGpuInfo(selectedGpuInfo);
+        }
+
+        // 清理 GPU 資料
+        function cleanData(data) {
+            const cleanedData = {};
+
+            Object.keys(data).forEach((gpuName) => {
+                const gpu = data[gpuName];
+
+                let gpuUtilization = "N/A";
+                if (gpu['GPU Core']) {
+                    gpuUtilization = gpu['GPU Core'].Value;
+                } else if (gpu['D3D 3D']) {
+                    gpuUtilization = gpu['D3D 3D'].Value;
+                }
+
+                const gpuMemoryTotal = gpu['GPU Memory Total'] ? gpu['GPU Memory Total'].Value : gpu['D3D Shared Memory Total'] ? gpu['D3D Shared Memory Total'].Value : "N/A";
+                const gpuMemoryUsed = gpu['GPU Memory Used'] ? gpu['GPU Memory Used'].Value : gpu['D3D Shared Memory Used'] ? gpu['D3D Shared Memory Used'].Value : "N/A";
+                const gpuMemoryFree = gpu['GPU Memory Free'] ? gpu['GPU Memory Free'].Value : gpu['D3D Shared Memory Free'] ? gpu['D3D Shared Memory Free'].Value : "N/A";
+
+                const gpuTemperature = gpu['GPU Hot Spot'] ? gpu['GPU Hot Spot'].Value : "N/A";
+
+                cleanedData[gpuName] = {
+                    Name: gpuName,
+                    gpuUtilization,
+                    gpuMemoryTotal,
+                    gpuMemoryUsed,
+                    gpuMemoryFree,
+                    gpuTemperature
+                };
+            });
+
+            return cleanedData;
+        }
+
+        // 初始化 GPU 選項
+        function initializeGpuSelect(cleanedData) {
+            const gpuNames = Object.keys(cleanedData);
+            gpuNames.forEach(gpuName => {
+                let option = document.createElement('option');
+                option.value = gpuName;
+                option.textContent = gpuName;
+                gpuSelect.appendChild(option);
+            });
+
+            if (gpuNames.length > 0) {
+                gpuSelect.value = gpuNames[0];
+                updateGpuInfo(cleanedData[gpuNames[0]]);
+            }
+        }
+    </script>
+</body>
+
 </html>

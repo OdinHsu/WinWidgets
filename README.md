@@ -10,7 +10,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/beyluta/WinWidgets">
-    <img src="Assets/icon.png" alt="Logo" width="80" height="80">
+    <img src="Assets/iconOri.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">WinWidgets</h3>

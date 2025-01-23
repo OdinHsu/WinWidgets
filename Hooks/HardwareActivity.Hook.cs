@@ -8,12 +8,8 @@ namespace Hooks
     {
         public delegate void BatteryLevelHandler(string level);
         public delegate void SpaceAvailableInDriveHandler(long freeSpace);
-        public delegate void AnyFullscreenApplicationHandler(bool fullscreen);
         public event BatteryLevelHandler OnBatteryLevel;
         public event SpaceAvailableInDriveHandler OnSpaceAvailable;
-        public event AnyFullscreenApplicationHandler OnAnyApplicationFullscrenStatusChanged;
-
-        private bool lastAnyApplicationFullscreenStatus = false;
 
         private TimerService timerService = new TimerService();
         private HardwareService hardwareService = new HardwareService();
@@ -32,10 +28,8 @@ namespace Hooks
         public HardwareActivityHook() 
         {
             hardwareInfo = new HardwareInfo();
-            hardwareInfo.StartSaveAllHardwareThread(2000);
+            hardwareInfo.StartSaveAllHardwareThread(800);
 
-            this.timerService.CreateTimer(1000, OnBatteryLevelEvent, true, true);
-            this.timerService.CreateTimer(1000, OnSpaceAvailableInDrivesEvent, true, true);
             this.timerService.CreateTimer(1000, OnHardwareInfoEvent, true, true);
         }
 
@@ -48,18 +42,14 @@ namespace Hooks
             // GPU info event
             string gpuInfo = this.hardwareService.GetAllGPUInfo(hardwareInfo);
             OnGPUInfo?.Invoke(gpuInfo);
-        }
 
-        private void OnBatteryLevelEvent(object sender, ElapsedEventArgs e)
-        {
+            // battery level event
             string level = this.hardwareService.GetBatteryLevelPercentage();
-            OnBatteryLevel.Invoke(level);
-        }
+            OnBatteryLevel?.Invoke(level);
 
-        private void OnSpaceAvailableInDrivesEvent(object sender, ElapsedEventArgs e)
-        {
+            // space available in drive event
             long freeSpace = this.hardwareService.GetFreeSpaceAvailableInDrive("C");
-            OnSpaceAvailable.Invoke(freeSpace);
+            OnSpaceAvailable?.Invoke(freeSpace);
         }
     }
 }

@@ -371,23 +371,6 @@ namespace Components
             CallJavaScriptFunction(freeSpace.ToString(), HardwareEvent.SpaceAvailable);
         }
 
-        private void OnAnyApplicationFullscrenStatusChanged(bool fullscreen)
-        {
-            this.configuration = AssetService.GetConfigurationFile();
-
-            if (this.configuration.isWidgetFullscreenHideEnabled)
-            {
-                if (fullscreen)
-                {
-                    this.widgetService.CloseAllWidgets(false);
-                }
-                else
-                {
-                    this.OpenWidgets();
-                }
-            }
-        }
-
         private void OnBrowserMessageReceived(object sender, JavascriptMessageReceivedEventArgs e)
         {
             switch (e.Message)
@@ -411,14 +394,6 @@ namespace Components
                     {
                         Configuration configuration = AssetService.GetConfigurationFile();
                         configuration.isWidgetAutostartEnabled = !configuration.isWidgetAutostartEnabled;
-                        AssetService.OverwriteConfigurationFile(configuration);
-                    }
-                    break;
-
-                case "widgetHideOnFullscreenApplication":
-                    {
-                        Configuration configuration = AssetService.GetConfigurationFile();
-                        configuration.isWidgetFullscreenHideEnabled = !configuration.isWidgetFullscreenHideEnabled;
                         AssetService.OverwriteConfigurationFile(configuration);
                     }
                     break;

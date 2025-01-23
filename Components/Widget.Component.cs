@@ -177,8 +177,21 @@ namespace Components
             }
             else if (message == "enableTopMost")
             {
-                // 恢復 TopMost
-                window.Invoke(new Action(() => window.TopMost = isTopMost));
+                POINT mousePos;
+                GetCursorPos(out mousePos);
+
+                double windowLeft = window.Left;
+                double windowTop = window.Top;
+                double windowRight = windowLeft + window.Width;
+                double windowBottom = windowTop + window.Height;
+
+                // 判斷滑鼠是否在視窗範圍內
+                if (mousePos.X >= windowLeft && mousePos.X <= windowRight &&
+                    mousePos.Y >= windowTop && mousePos.Y <= windowBottom)
+                {
+                    // 滑鼠在範圍內，執行操作
+                    window.Invoke(new Action(() => window.TopMost = isTopMost));
+                }
             }
             else
             {

@@ -98,86 +98,116 @@ internal class Program
     }
 }
 
+////using System;
+////using System.Collections.Generic;
+////using LibreHardwareMonitor.Hardware;
+////using Newtonsoft.Json;
+////using Services;
+
+////public class UpdateVisitor : IVisitor
+////{
+////    public void VisitComputer(IComputer computer)
+////    {
+////        computer.Traverse(this);
+////    }
+
+////    public void VisitHardware(IHardware hardware)
+////    {
+////        hardware.Update();
+////        foreach (IHardware subHardware in hardware.SubHardware)
+////        {
+////            subHardware.Accept(this);
+////        }
+////    }
+
+////    public void VisitSensor(ISensor sensor) { }
+////    public void VisitParameter(IParameter parameter) { }
+////}
+
+////public class Program
+////{
+////    private readonly Computer computer;
+
+////    public Program()
+////    {
+////        computer = new Computer
+////        {
+////            IsCpuEnabled = true,
+////            IsGpuEnabled = true,
+////            IsMemoryEnabled = true,
+////            IsMotherboardEnabled = true,
+////            IsControllerEnabled = true,
+////            IsNetworkEnabled = true,
+////            IsStorageEnabled = true
+////        };
+////        computer.Open();
+////        computer.Accept(new UpdateVisitor());
+////    }
+
+////    ~Program()
+////    {
+////        computer.Close();
+////    }
+
+////    public void printInfo()
+////    {
+////        foreach (IHardware hardware in computer.Hardware)
+////        {
+////            if (hardware.HardwareType == HardwareType.GpuNvidia ||
+////                    hardware.HardwareType == HardwareType.GpuAmd ||
+////                    hardware.HardwareType == HardwareType.GpuIntel)
+////            {
+////                hardware.Update();
+
+////                Console.WriteLine("Hardware: {0}", hardware.Name);
+
+////                foreach (ISensor sensor in hardware.Sensors)
+////                {
+////                    var sensorName = sensor.Name;
+////                    var sensorValue = sensor.Value.GetValueOrDefault();
+////                    var sensorType = sensor.SensorType;
+
+////                    Console.WriteLine($"SensorName: {sensorName}, value: {sensorValue}, type: {sensorType}");
+////                }
+////            }
+////        }
+////    }
+
+////    public static void Main()
+////    {
+////        var program = new Program();
+////        program.printInfo();
+////    }
+////}
+
 //using System;
-//using System.Collections.Generic;
-//using LibreHardwareMonitor.Hardware;
-//using Newtonsoft.Json;
-//using Services;
+//using System.Linq;
+//using System.Net.NetworkInformation;
+//using NativeWifi; // 確保引用 NativeWifi 套件
 
-//public class UpdateVisitor : IVisitor
+//class Program
 //{
-//    public void VisitComputer(IComputer computer)
+//    static private void SpeedInit() // 此方法為自動取得正在連線中網路介面
 //    {
-//        computer.Traverse(this);
-//    }
+//        NetworkInterface[] netInterfaceAry = NetworkInterface.GetAllNetworkInterfaces();
+//        WlanClient wlanClient = new WlanClient();
+//        int count = 0; // 初始化計數器
 
-//    public void VisitHardware(IHardware hardware)
-//    {
-//        hardware.Update();
-//        foreach (IHardware subHardware in hardware.SubHardware)
+//        foreach (NetworkInterface netInterface in netInterfaceAry)
 //        {
-//            subHardware.Accept(this);
-//        }
-//    }
-
-//    public void VisitSensor(ISensor sensor) { }
-//    public void VisitParameter(IParameter parameter) { }
-//}
-
-//public class Program
-//{
-//    private readonly Computer computer;
-
-//    public Program()
-//    {
-//        computer = new Computer
-//        {
-//            IsCpuEnabled = true,
-//            IsGpuEnabled = true,
-//            IsMemoryEnabled = true,
-//            IsMotherboardEnabled = true,
-//            IsControllerEnabled = true,
-//            IsNetworkEnabled = true,
-//            IsStorageEnabled = true
-//        };
-//        computer.Open();
-//        computer.Accept(new UpdateVisitor());
-//    }
-
-//    ~Program()
-//    {
-//        computer.Close();
-//    }
-
-//    public void printInfo()
-//    {
-//        foreach (IHardware hardware in computer.Hardware)
-//        {
-//            if (hardware.HardwareType == HardwareType.GpuNvidia ||
-//                    hardware.HardwareType == HardwareType.GpuAmd ||
-//                    hardware.HardwareType == HardwareType.GpuIntel)
+//            if (netInterface.Name == wlanClient.Interfaces[0].InterfaceName)
 //            {
-//                hardware.Update();
-
-//                Console.WriteLine("Hardware: {0}", hardware.Name);
-
-//                foreach (ISensor sensor in hardware.Sensors)
-//                {
-//                    var sensorName = sensor.Name;
-//                    var sensorValue = sensor.Value.GetValueOrDefault();
-//                    var sensorType = sensor.SensorType;
-
-//                    Console.WriteLine($"SensorName: {sensorName}, value: {sensorValue}, type: {sensorType}");
-//                }
+//                Console.WriteLine($"找到匹配的網路介面: {netInterface.Name}");
+//                break;
 //            }
+//            count++;
 //        }
+
+//        Console.WriteLine($"匹配的介面索引為: {count}");
 //    }
 
-//    public static void Main()
+//    static void Main(string[] args)
 //    {
-//        var program = new Program();
-//        program.printInfo();
+//        SpeedInit();
 //    }
 //}
-
-

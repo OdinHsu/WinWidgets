@@ -28,6 +28,10 @@ namespace Hooks
         public delegate void DiskInfoHandler(string diskInfo);
         public event DiskInfoHandler OnDiskInfo;
 
+        // Network info event
+        public delegate void NetworkInfoHandler(string networkInfo);
+        public event NetworkInfoHandler OnNetworkInfo;
+
         // 建立 HardwareInfo 物件
         HardwareInfo hardwareInfo;
 
@@ -56,6 +60,10 @@ namespace Hooks
             // Storage info event
             string diskInfo = this.hardwareService.GetDiskInfo(hardwareInfo);
             OnDiskInfo?.Invoke(diskInfo);
+
+            // Network info event
+            string networkInfo = this.hardwareService.GetNetworkInfo(hardwareInfo);
+            OnNetworkInfo?.Invoke(networkInfo);
 
             // battery level event
             string level = this.hardwareService.GetBatteryLevelPercentage();

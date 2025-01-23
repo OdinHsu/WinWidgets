@@ -8,7 +8,8 @@
         CPUInfo = 3,
         GPUInfo = 4,
         RAMInfo = 5,
-        DiskInfo = 6
+        DiskInfo = 6,
+        NetworkInfo = 7,
     }
 
     internal struct PeripheralAction

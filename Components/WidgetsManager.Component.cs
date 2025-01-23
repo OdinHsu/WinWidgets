@@ -276,6 +276,7 @@ namespace Components
                 hardwareActivityHook.OnGPUInfo += OnGPUInfoChanged;
                 hardwareActivityHook.OnRAMInfo += OnRamInfoChanged;
                 hardwareActivityHook.OnDiskInfo += OnDiskInfoChanged;
+                hardwareActivityHook.OnNetworkInfo += OnNetworkInfoChanged;
             }));
         }
 
@@ -312,8 +313,16 @@ namespace Components
                     case HardwareEvent.DiskInfo:
                         this.widgetService.InjectJavascript(widget, "if (typeof onNativeDiskInfoEvent === 'function') { onNativeDiskInfoEvent(" + data + "); }");
                         break;
+                    case HardwareEvent.NetworkInfo:
+                        this.widgetService.InjectJavascript(widget, "if (typeof onNativeNetworkInfoEvent === 'function') { onNativeNetworkInfoEvent(" + data + "); }");
+                        break;
                 }
             }
+        }
+
+        private void OnNetworkInfoChanged(string networkInfo)
+        {
+            CallJavaScriptFunction(networkInfo, HardwareEvent.NetworkInfo);
         }
 
         private void OnDiskInfoChanged(string diskInfo)

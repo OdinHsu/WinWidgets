@@ -1,15 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.IO;
-using System.Management;
-using System.Runtime.InteropServices;
+﻿using System.IO;
 using System.Windows.Forms;
-using System.Diagnostics;
-using System.Collections.Generic;
-using Models;
-using WidgetsDotNet.Models;
-using System.Linq;
-using System.Text.RegularExpressions;
 using HardwareInfoDll;  // 引用 C++/CLI DLL
 
 namespace Services
@@ -24,17 +14,6 @@ namespace Services
         {
             PowerStatus powerStatus = System.Windows.Forms.SystemInformation.PowerStatus;
             return powerStatus.BatteryLifePercent.ToString("P0"); // 格式化為百分比
-        }
-
-        /// <summary>
-        /// Gets the amount of free space available in a specific drive
-        /// </summary>
-        /// <param name="driveLetter">Letter(s) of the desired drive</param>
-        /// <returns>Space represented in bytes</returns>
-        public long GetFreeSpaceAvailableInDrive(string driveLetter)
-        {
-            DriveInfo drive = new DriveInfo(driveLetter);
-            return drive.AvailableFreeSpace;
         }
 
         /// <summary>
@@ -62,6 +41,24 @@ namespace Services
         public string GetRAMInfo(HardwareInfo hardwareInfo)
         {
             return hardwareInfo.GetMemoryInfo();
+        }
+
+        /// <summary>
+        /// Get disk information (including usage, memory, etc.)
+        /// </summary>
+        /// <return>Disk size in bytes</return>
+        public string GetDiskInfo(HardwareInfo hardwareInfo)
+        {
+            return hardwareInfo.GetStorageInfo();
+        }
+
+        /// <summary>
+        /// Get network information (including usage, memory, etc.)
+        /// </summary>
+        /// <return>Disk size in bytes</return>
+        public string GetNetworkInfo(HardwareInfo hardwareInfo)
+        {
+            return hardwareInfo.GetNetworkInfo();
         }
     }
 }

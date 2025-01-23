@@ -272,10 +272,10 @@ namespace Components
 
                 HardwareActivityHook hardwareActivityHook = new HardwareActivityHook();
                 hardwareActivityHook.OnBatteryLevel += OnBatteryLevelChanged;
-                hardwareActivityHook.OnSpaceAvailable += OnSpaceAvailableChanged;
                 hardwareActivityHook.OnCPUInfo += OnCPUInfoChanged;
                 hardwareActivityHook.OnGPUInfo += OnGPUInfoChanged;
                 hardwareActivityHook.OnRAMInfo += OnRamInfoChanged;
+                hardwareActivityHook.OnDiskInfo += OnDiskInfoChanged;
             }));
         }
 
@@ -300,9 +300,6 @@ namespace Components
                         this.widgetService.InjectJavascript(widget, "if (typeof onNativeBatteryLevelEvent === 'function') { onNativeBatteryLevelEvent(" + data + "); }");
                         break;
 
-                    case HardwareEvent.SpaceAvailable:
-                        this.widgetService.InjectJavascript(widget, "if (typeof onNativeSpaceAvailableEvent === 'function') { onNativeSpaceAvailableEvent(" + data + "); }");
-                        break;
                     case HardwareEvent.CPUInfo:
                         this.widgetService.InjectJavascript(widget, "if (typeof onNativeCPUInfoEvent === 'function') { onNativeCPUInfoEvent(" + data + "); }");
                         break;
@@ -312,8 +309,16 @@ namespace Components
                     case HardwareEvent.RAMInfo:
                         this.widgetService.InjectJavascript(widget, "if (typeof onNativeRAMInfoEvent === 'function') { onNativeRAMInfoEvent(" + data + "); }");
                         break;
+                    case HardwareEvent.DiskInfo:
+                        this.widgetService.InjectJavascript(widget, "if (typeof onNativeDiskInfoEvent === 'function') { onNativeDiskInfoEvent(" + data + "); }");
+                        break;
                 }
             }
+        }
+
+        private void OnDiskInfoChanged(string diskInfo)
+        {
+            CallJavaScriptFunction(diskInfo, HardwareEvent.DiskInfo);
         }
 
         private void OnRamInfoChanged(string ramInfo)
@@ -373,11 +378,6 @@ namespace Components
         private void OnBatteryLevelChanged(string level)
         {
             CallJavaScriptFunction(level, HardwareEvent.BatteryLevel);
-        }
-
-        private void OnSpaceAvailableChanged(long freeSpace)
-        {
-            CallJavaScriptFunction(freeSpace.ToString(), HardwareEvent.SpaceAvailable);
         }
 
         private void OnBrowserMessageReceived(object sender, JavascriptMessageReceivedEventArgs e)

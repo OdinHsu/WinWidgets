@@ -141,6 +141,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Core\HardwareInfoDll.dll</HintPath>
     </Reference>
+    <Reference Include="LibreHardwareMonitorLib, Version=0.9.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Core\LibreHardwareMonitorLib.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />

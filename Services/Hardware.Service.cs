@@ -84,12 +84,12 @@ namespace Services
         public string GetNetworkInfo(HardwareInfo hardwareInfo)
         {
             string networkInfoJson = hardwareInfo.GetNetworkInfo();
-            string networkName = SpeedInit();
+            //string networkName = SpeedInit();
 
             // 解析 JSON 字串
             JObject json = JObject.Parse(networkInfoJson);
 
-            json["currentNetwork"] = networkName;
+            //json["currentNetwork"] = networkName;
 
             // 返回更新後的 JSON 字串
             return json.ToString();

@@ -128,7 +128,7 @@ namespace Components
 
         private void OnBrowserInitialized(object sender, EventArgs e)
         {
-            this.timerService.CreateTimer(16, OnBrowserUpdateTick, true, true);  // 每 16ms（大約 60fps）
+            this.timerService.CreateTimer(33, OnBrowserUpdateTick, true, true);
             this.widgetService.InjectJavascript(
                 this, 
                 $"if (typeof onGetConfiguration === 'function') onGetConfiguration({JsonConvert.SerializeObject(configuration.settings)});",

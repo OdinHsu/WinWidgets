@@ -6,9 +6,6 @@ namespace Hooks
 {
     internal class HardwareActivityHook
     {
-        public delegate void BatteryLevelHandler(string level);
-        public event BatteryLevelHandler OnBatteryLevel;
-
         private TimerService timerService = new TimerService();
         private HardwareService hardwareService = new HardwareService();
 
@@ -64,10 +61,6 @@ namespace Hooks
             // Network info event
             string networkInfo = this.hardwareService.GetNetworkInfo(hardwareInfo);
             OnNetworkInfo?.Invoke(networkInfo);
-
-            // battery level event
-            string level = this.hardwareService.GetBatteryLevelPercentage();
-            OnBatteryLevel?.Invoke(level);
         }
     }
 }

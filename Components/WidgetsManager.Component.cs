@@ -243,7 +243,7 @@ namespace Components
             fileWatcher.IncludeSubdirectories = true;
             fileWatcher.EnableRaisingEvents = true;
 
-            this.timerService.CreateTimer(1000, OnInitializeHooks, false, true);
+            this.timerService.CreateTimer(1500, OnInitializeHooks, false, true);
 
             this.browser.BeginInvoke(new Action(delegate
             {
@@ -271,7 +271,6 @@ namespace Components
                 userActivityHook.OnMouseActivity += new MouseEventHandler(OnMouseActivity);
 
                 HardwareActivityHook hardwareActivityHook = new HardwareActivityHook();
-                hardwareActivityHook.OnBatteryLevel += OnBatteryLevelChanged;
                 hardwareActivityHook.OnCPUInfo += OnCPUInfoChanged;
                 hardwareActivityHook.OnGPUInfo += OnGPUInfoChanged;
                 hardwareActivityHook.OnRAMInfo += OnRamInfoChanged;
@@ -295,10 +294,6 @@ namespace Components
                         }
 
                         this.widgetService.InjectJavascript(widget, "if (typeof onNativeKeyEvents === 'function') { onNativeKeyEvents(" + data + "); }");
-                        break;
-
-                    case HardwareEvent.BatteryLevel:
-                        this.widgetService.InjectJavascript(widget, "if (typeof onNativeBatteryLevelEvent === 'function') { onNativeBatteryLevelEvent(" + data + "); }");
                         break;
 
                     case HardwareEvent.CPUInfo:
@@ -382,11 +377,6 @@ namespace Components
             };
 
             CallJavaScriptFunction(JsonConvert.SerializeObject(action), HardwareEvent.NativeKeys);
-        }
-
-        private void OnBatteryLevelChanged(string level)
-        {
-            CallJavaScriptFunction(level, HardwareEvent.BatteryLevel);
         }
 
         private void OnBrowserMessageReceived(object sender, JavascriptMessageReceivedEventArgs e)

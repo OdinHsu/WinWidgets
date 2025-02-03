@@ -30,6 +30,8 @@ namespace Components
         private WidgetService widgetService = new WidgetService();
         private TimerService timerService = new TimerService();
 
+        private DateTime _lastSaveTime = DateTime.MinValue;
+
         public override IntPtr handle
         {
             get { return _handle; }
@@ -67,6 +69,13 @@ namespace Components
             window.Controls.Add(browser);
         }
 
+        // (快取配置)
+        private static Lazy<dynamic> _cachedConfig = new Lazy<dynamic>(() =>
+        {
+            string json = File.ReadAllText("appsettings.json");
+            return JsonConvert.DeserializeObject<dynamic>(json);
+        });
+
         public override void CreateWindow(int width, int height, string title, bool save, Point position = default(Point), bool? alwaysOnTop = null)
         {
             new Thread(() =>
@@ -74,20 +83,21 @@ namespace Components
                 POINT mousePos;
                 GetCursorPos(out mousePos);
 
-                // JSON 檔案路徑
-                string json = File.ReadAllText("appsettings.json"); // 讀取 JSON 檔案
-                var config = JsonConvert.DeserializeObject<dynamic>(json); // 解析成動態物件
+                // 使用時直接取用
+                var config = _cachedConfig.Value;
+
                 var bounds = ScreenSettingAPI.GetScreenBounds(config.ScreenDescription.ToString());  // 返回的是元組 (left, top, right, bottom)
                 if (position == default(Point) && bounds != null)
                 {
                     position = new Point(bounds.Item1+50, bounds.Item2+50);
                 }
 
-                string sizeString = this.htmlDocService.GetMetaTagValue("windowSize", htmlPath);
-                string radiusString = this.htmlDocService.GetMetaTagValue("windowBorderRadius", htmlPath);
-                string locationString = this.htmlDocService.GetMetaTagValue("windowLocation", htmlPath);
-                string topMostString = this.htmlDocService.GetMetaTagValue("topMost", htmlPath);
-                string opacityString = this.htmlDocService.GetMetaTagValue("windowOpacity", htmlPath);
+                var metaTags = htmlDocService.GetAllMetaTags(htmlPath);
+                string sizeString = metaTags.TryGetValue("windowSize", out var size) ? size : null;
+                string radiusString = metaTags.TryGetValue("windowBorderRadius", out var radius) ? radius : null;
+                string locationString = metaTags.TryGetValue("windowLocation", out var location) ? location : null;
+                string topMostString = metaTags.TryGetValue("topMost", out var topMostSt) ? topMostSt : null;
+                string opacityString = metaTags.TryGetValue("windowOpacity", out var opacitySt) ? opacitySt : null;
                 int roundess = radiusString != null ? int.Parse(radiusString) : 0;
                 this.width = sizeString != null ? int.Parse(sizeString.Split(' ')[0]) : width;
                 this.height = sizeString != null ? int.Parse(sizeString.Split(' ')[1]) : height;
@@ -137,6 +147,14 @@ namespace Components
             this.browser.JavascriptMessageReceived += OnBrowserMessageReceived;
         }
 
+        private void UpdateSession()
+        {
+            if ((DateTime.Now - _lastSaveTime).TotalMilliseconds < 500) return;
+            _lastSaveTime = DateTime.Now;
+            // 更新當前視窗的 session 配置
+            this.widgetService.AddOrUpdateSession(this.htmlPath, window.Location, window.TopMost);
+        }
+
         private void OnBrowserUpdateTick(object sender, ElapsedEventArgs e)
         {
             // 檢查是否處於移動模式
@@ -151,8 +169,7 @@ namespace Components
                     // 更新視窗位置
                     window.Location = new Point(pos.X - width / 2, pos.Y - height / 2);
 
-                    // 更新當前視窗的 session 配置
-                    this.widgetService.AddOrUpdateSession(this.htmlPath, window.Location, window.TopMost);
+                    UpdateSession();
                 }));
             }
         }

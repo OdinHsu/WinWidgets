@@ -12,6 +12,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Text;
 using System.Timers;
 using System.Windows.Forms;
 using WidgetsDotNet.Properties;
@@ -35,6 +36,9 @@ namespace Components
         private WidgetService widgetService = new WidgetService();
         private TimerService timerService = new TimerService();
         private WidgetManager widgetManager = new WidgetManager();
+
+        // 使用 Timer 合併短時間內的多次文件變更事件，避免頻繁觸發 ReloadWidgets
+        private System.Timers.Timer _debounceTimer;
 
         public override string htmlPath 
         { 
@@ -122,51 +126,50 @@ namespace Components
 
         private void ReloadWidgets()
         {
-            string template = 
-                $"var container = document.getElementById('widgets');"
-                + $"container.innerHTML = '';"
-                + $"setVersion('{this.configuration.version}');"
-                + "document.getElementById('folder').onclick = () => CefSharp.PostMessage('widgetsFolder');"
-                + "var switches = document.getElementsByClassName('switch');"
-                + "for (let s of switches) {"
-                + "const setting = s.getAttribute('setting');"
-                + "if (setting == 'startup') {"
-                + $"{(registryKey.GetValue("WinWidgets") != null ? "s.classList.add('switchon');" : "")}"
-                + "}"
-                + "else if (setting == 'widgetStartup') {"
-                + $"{(AssetService.GetConfigurationFile().isWidgetAutostartEnabled ? "s.classList.add('switchon');" : "")}"
-                + "}" 
-                + "else if (setting == 'widgetHideOnFullscreenApplication') {"
-                + $"{(AssetService.GetConfigurationFile().isWidgetFullscreenHideEnabled ? "s.classList.add('switchon');" : "")}"
-                + "}"
-                + "else if (setting == 'managerHideOnStart') {"
-                + $"{(AssetService.GetConfigurationFile().hideWidgetManagerOnStartup ? "s.classList.add('switchon');" : "")}"
-                + "}}";
+            var templateBuilder = new StringBuilder(1024);
+            templateBuilder.AppendLine("var container = document.getElementById('widgets');");
+            templateBuilder.AppendLine("container.innerHTML = '';");
+            templateBuilder.AppendLine("setVersion('" + this.configuration.version + "');");
+            templateBuilder.AppendLine("document.getElementById('folder').onclick = () => CefSharp.PostMessage('widgetsFolder');");
+            templateBuilder.AppendLine("var switches = document.getElementsByClassName('switch');");
+            templateBuilder.AppendLine("for (let s of switches) {");
+            templateBuilder.AppendLine("const setting = s.getAttribute('setting');");
+            templateBuilder.AppendLine("if (setting == 'startup') {");
+            templateBuilder.AppendLine(registryKey.GetValue("WinWidgets") != null ? "s.classList.add('switchon');" : "");
+            templateBuilder.AppendLine("}");
+            templateBuilder.AppendLine("else if (setting == 'widgetStartup') {");
+            templateBuilder.AppendLine(AssetService.GetConfigurationFile().isWidgetAutostartEnabled ? "s.classList.add('switchon');" : "");
+            templateBuilder.AppendLine("}");
+            templateBuilder.AppendLine("else if (setting == 'widgetHideOnFullscreenApplication') {");
+            templateBuilder.AppendLine(AssetService.GetConfigurationFile().isWidgetFullscreenHideEnabled ? "s.classList.add('switchon');" : "");
+            templateBuilder.AppendLine("}");
+            templateBuilder.AppendLine("else if (setting == 'managerHideOnStart') {");
+            templateBuilder.AppendLine(AssetService.GetConfigurationFile().hideWidgetManagerOnStartup ? "s.classList.add('switchon');" : "");
+            templateBuilder.AppendLine("}}");
+
             string[] files = AssetService.GetPathToHTMLFiles(AssetService.widgetsPath);
 
             for (int i = 0; i < files.Length; i++)
             {
                 _htmlPath = files[i];
                 string localWidgetPath = _htmlPath.Replace('\\', '/');
-
-                template += $@"
-                    var e{i} = document.createElement('div');"
-                    + $"e{i}.classList.add('widget');"
-                    + $"e{i}.classList.add('flex-row');"
-                    + $"e{i}.style.width = '{(this.HTMLDocService.GetMetaTagValue("previewSize", _htmlPath) != null ? this.HTMLDocService.GetMetaTagValue("previewSize", _htmlPath).Split(' ')[0] : null)}px';"
-                    + $"e{i}.style.minHeight = '{(this.HTMLDocService.GetMetaTagValue("previewSize", _htmlPath) != null ? this.HTMLDocService.GetMetaTagValue("previewSize", _htmlPath).Split(' ')[1] : null)}px';"
-                    + $"e{i}.setAttribute('name', '{this.HTMLDocService.GetMetaTagValue("applicationTitle", _htmlPath)}');"
-                    + $"e{i}.innerHTML = `<p>{this.HTMLDocService.GetMetaTagValue("applicationTitle", _htmlPath)}</p> <iframe src='file:///{localWidgetPath}'></iframe>`;"
-                    + $"var l{i} = document.createElement('span');"
-                    + $"e{i}.appendChild(l{i});"
-                    + $"l{i}.classList.add('label');"
-                    + $"l{i}.innerText = '{this.HTMLDocService.GetMetaTagValue("applicationTitle", _htmlPath)}';"
-                    + $"document.getElementById('widgets').appendChild(e{i});"
-                    + $"e{i}.onclick = () => CefSharp.PostMessage('{i}');"
-                 ;
+                templateBuilder.AppendLine($@"
+                    var e{i} = document.createElement('div');");
+                templateBuilder.AppendLine($"e{i}.classList.add('widget');");
+                templateBuilder.AppendLine($"e{i}.classList.add('flex-row');");
+                templateBuilder.AppendLine($"e{i}.style.width = '{(this.HTMLDocService.GetMetaTagValue("previewSize", _htmlPath) != null ? this.HTMLDocService.GetMetaTagValue("previewSize", _htmlPath).Split(' ')[0] : null)}px';");
+                templateBuilder.AppendLine($"e{i}.style.minHeight = '{(this.HTMLDocService.GetMetaTagValue("previewSize", _htmlPath) != null ? this.HTMLDocService.GetMetaTagValue("previewSize", _htmlPath).Split(' ')[1] : null)}px';");
+                templateBuilder.AppendLine($"e{i}.setAttribute('name', '{this.HTMLDocService.GetMetaTagValue("applicationTitle", _htmlPath)}');");
+                templateBuilder.AppendLine($"e{i}.innerHTML = `<p>{this.HTMLDocService.GetMetaTagValue("applicationTitle", _htmlPath)}</p> <iframe src='file:///{localWidgetPath}'></iframe>`;");
+                templateBuilder.AppendLine($"var l{i} = document.createElement('span');");
+                templateBuilder.AppendLine($"e{i}.appendChild(l{i});");
+                templateBuilder.AppendLine($"l{i}.classList.add('label');");
+                templateBuilder.AppendLine($"l{i}.innerText = '{this.HTMLDocService.GetMetaTagValue("applicationTitle", _htmlPath)}';");
+                templateBuilder.AppendLine($"document.getElementById('widgets').appendChild(e{i});");
+                templateBuilder.AppendLine($"e{i}.onclick = () => CefSharp.PostMessage('{i}');");
             }
 
-            browser.ExecuteScriptAsyncWhenPageLoaded(template);
+            browser.ExecuteScriptAsyncWhenPageLoaded(templateBuilder.ToString());
         }
 
         public override void OpenWidgets()
@@ -222,6 +225,12 @@ namespace Components
             this.formService.WakeWindow(this.window);
         }
 
+        private void OnFileChanged(object sender, FileSystemEventArgs e)
+        {
+            _debounceTimer.Stop();  // 先停止 Timer
+            _debounceTimer.Start(); // 重新計時，確保最後一次變更後 500ms 再執行
+        }
+
         private void OnBrowserInitialized(object sender, EventArgs e)
         {
             FileSystemWatcher fileWatcher = new FileSystemWatcher(AssetService.widgetsPath);
@@ -234,10 +243,14 @@ namespace Components
                                  | NotifyFilters.Security
                                  | NotifyFilters.Size;
 
-            fileWatcher.Changed += delegate { ReloadWidgets(); };
-            fileWatcher.Created += delegate { ReloadWidgets(); };
-            fileWatcher.Deleted += delegate { ReloadWidgets(); };
-            fileWatcher.Renamed += delegate { ReloadWidgets(); };
+            _debounceTimer = new System.Timers.Timer(500); // 500ms 去抖動
+            _debounceTimer.AutoReset = false; // 確保 Timer 只觸發一次
+            _debounceTimer.Elapsed += (s, et) => ReloadWidgets();
+
+            fileWatcher.Changed += OnFileChanged;
+            fileWatcher.Created += OnFileChanged;
+            fileWatcher.Deleted += OnFileChanged;
+            fileWatcher.Renamed += OnFileChanged;
 
             fileWatcher.Filter = "*.html";
             fileWatcher.IncludeSubdirectories = true;

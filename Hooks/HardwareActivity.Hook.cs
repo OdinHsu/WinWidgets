@@ -35,13 +35,14 @@ namespace Hooks
         public HardwareActivityHook() 
         {
             hardwareInfo = new HardwareInfo();
-            hardwareInfo.StartSaveAllHardwareThread(1500);
 
-            this.timerService.CreateTimer(1500, OnHardwareInfoEvent, true, true);
+            this.timerService.CreateTimer(1000, OnHardwareInfoEvent, true, true);
         }
 
         private void OnHardwareInfoEvent(object sender, ElapsedEventArgs e)
         {
+            hardwareInfo.SaveAllHardware();
+
             // CPU info event
             string cpuInfo = this.hardwareService.GetCPUInfo(hardwareInfo);
             OnCPUInfo?.Invoke(cpuInfo);

@@ -7,6 +7,7 @@ namespace Modules
     internal class WidgetForm : Form
     {
         private bool isWidget;
+        public bool isTopMost = false;
 
         /// <summary>
         /// Constructs a new instance of the WidgetForm class

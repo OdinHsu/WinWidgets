@@ -121,7 +121,7 @@ namespace Components
 
                 AppendWidget(window, htmlPath);
                 window.TopMost = topMost;
-                isTopMost = topMost;
+                window.isTopMost = topMost;
                 window.ShowDialog();
             }).Start();
         }
@@ -172,7 +172,7 @@ namespace Components
 
             if (message == "disableTopMost")
             {
-                isTopMost = window.TopMost;  // 紀錄原本的
+                window.isTopMost = window.TopMost;  // 紀錄原本的
                 window.Invoke(new Action(() => window.TopMost = false));
             }
             else if (message == "enableTopMost")
@@ -190,7 +190,7 @@ namespace Components
                     mousePos.Y >= windowTop && mousePos.Y <= windowBottom)
                 {
                     // 滑鼠在範圍內，執行操作
-                    window.Invoke(new Action(() => window.TopMost = isTopMost));
+                    window.Invoke(new Action(() => window.TopMost = window.isTopMost));
                 }
             }
             else

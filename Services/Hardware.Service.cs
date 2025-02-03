@@ -3,12 +3,17 @@ using System.Net.NetworkInformation;
 using Newtonsoft.Json.Linq;
 using NativeWifi; // 確保引用 NativeWifi 套件
 using System.Windows.Forms;
+using System.Linq;
 using HardwareInfoDll;  // 引用 C++/CLI DLL
 
 namespace Services
 {
     internal class HardwareService
     {
+        private static string _cachedInterfaceName;
+        private static DateTime _lastUpdated;
+        private static readonly TimeSpan CacheExpiry = TimeSpan.FromSeconds(5);
+
         /// <summary>
         /// Get battery level in percentage
         /// </summary>
@@ -56,42 +61,67 @@ namespace Services
         }
 
         /// <summary>
-        /// 取得目前正在使用的網路名稱。
+        /// 智能識別主要網路介面卡
         /// </summary>
-        /// <returns>返回正在使用的網路名稱，若無則返回空字串。</returns>
-        static private string SpeedInit() // 此方法為自動取得正在連線中網路介面
+        private static string GetActiveNetworkInterface()
         {
-            NetworkInterface[] netInterfaceAry = NetworkInterface.GetAllNetworkInterfaces();
-            WlanClient wlanClient = new WlanClient();
-            int count = 0; // 初始化計數器
-
-            foreach (NetworkInterface netInterface in netInterfaceAry)
+            if (DateTime.Now - _lastUpdated < CacheExpiry && !string.IsNullOrEmpty(_cachedInterfaceName))
             {
-                if (netInterface.Name == wlanClient.Interfaces[0].InterfaceName)
-                {
-                    return netInterface.Name;
-                }
-                count++;
+                return _cachedInterfaceName;
             }
 
-            return null;
+            string result = null;
+
+            // 方案 1: 優先識別有實際流量的介面
+            var activeByTraffic = NetworkInterface.GetAllNetworkInterfaces()
+                .Where(ni => ni.OperationalStatus == OperationalStatus.Up &&
+                             ni.NetworkInterfaceType != NetworkInterfaceType.Loopback &&
+                             ni.NetworkInterfaceType != NetworkInterfaceType.Tunnel)
+                .OrderByDescending(ni => ni.GetIPv4Statistics().BytesReceived + ni.GetIPv4Statistics().BytesSent)
+                .FirstOrDefault();
+
+            // 方案 2: 確認無線介面連接狀態
+            if (activeByTraffic?.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
+            {
+                try
+                {
+                    var wlanClient = new WlanClient(); // 不需要 using
+                    foreach (var wlanInterface in wlanClient.Interfaces)
+                    {
+                        if (wlanInterface.InterfaceState == Wlan.WlanInterfaceState.Connected)
+                        {
+                            result = activeByTraffic.Name;
+                            break;
+                        }
+                    }
+                }
+                catch { /* 忽略例外 */ }
+            }
+
+            // 方案 3: 最終回退
+            if (result == null)
+            {
+                result = activeByTraffic?.Name;
+            }
+
+            // 更新快取
+            _cachedInterfaceName = result ?? "No active interface";
+            _lastUpdated = DateTime.Now;
+
+            return _cachedInterfaceName;
         }
 
         /// <summary>
-        /// Get network information (including usage, memory, etc.)
+        /// 獲取網路資訊（包含介面卡名稱）
         /// </summary>
-        /// <return>Disk size in bytes</return>
         public string GetNetworkInfo(HardwareInfo hardwareInfo)
         {
             string networkInfoJson = hardwareInfo.GetNetworkInfo();
-            //string networkName = SpeedInit();
+            string interfaceName = GetActiveNetworkInterface();
 
-            // 解析 JSON 字串
             JObject json = JObject.Parse(networkInfoJson);
+            json["currentNetwork"] = interfaceName;
 
-            //json["currentNetwork"] = networkName;
-
-            // 返回更新後的 JSON 字串
             return json.ToString();
         }
     }

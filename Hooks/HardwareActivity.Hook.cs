@@ -1,6 +1,7 @@
 ﻿using Services;
 using System.Timers;
-using HardwareInfoDll;  // 引用 C++/CLI DLL
+using HardwareInfoDll;
+using System.Threading.Tasks;  // 引用 C++/CLI DLL
 
 namespace Hooks
 {
@@ -41,27 +42,30 @@ namespace Hooks
 
         private void OnHardwareInfoEvent(object sender, ElapsedEventArgs e)
         {
-            hardwareInfo.SaveAllHardware();
+            Task.Run(() =>
+            {
+                hardwareInfo.SaveAllHardware();
 
-            // CPU info event
-            string cpuInfo = this.hardwareService.GetCPUInfo(hardwareInfo);
-            OnCPUInfo?.Invoke(cpuInfo);
+                // CPU info event
+                string cpuInfo = this.hardwareService.GetCPUInfo(hardwareInfo);
+                OnCPUInfo?.Invoke(cpuInfo);
 
-            // GPU info event
-            string gpuInfo = this.hardwareService.GetAllGPUInfo(hardwareInfo);
-            OnGPUInfo?.Invoke(gpuInfo);
+                // GPU info event
+                string gpuInfo = this.hardwareService.GetAllGPUInfo(hardwareInfo);
+                OnGPUInfo?.Invoke(gpuInfo);
 
-            // RAM info event
-            string ramInfo = this.hardwareService.GetRAMInfo(hardwareInfo);
-            OnRAMInfo?.Invoke(ramInfo);
+                // RAM info event
+                string ramInfo = this.hardwareService.GetRAMInfo(hardwareInfo);
+                OnRAMInfo?.Invoke(ramInfo);
 
-            // Storage info event
-            string diskInfo = this.hardwareService.GetDiskInfo(hardwareInfo);
-            OnDiskInfo?.Invoke(diskInfo);
+                // Storage info event
+                string diskInfo = this.hardwareService.GetDiskInfo(hardwareInfo);
+                OnDiskInfo?.Invoke(diskInfo);
 
-            // Network info event
-            string networkInfo = this.hardwareService.GetNetworkInfo(hardwareInfo);
-            OnNetworkInfo?.Invoke(networkInfo);
+                // Network info event
+                string networkInfo = this.hardwareService.GetNetworkInfo(hardwareInfo);
+                OnNetworkInfo?.Invoke(networkInfo);
+            });
         }
     }
 }

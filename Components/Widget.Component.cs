@@ -149,7 +149,7 @@ namespace Components
 
         private void UpdateSession()
         {
-            if ((DateTime.Now - _lastSaveTime).TotalMilliseconds < 500) return;
+            if ((DateTime.Now - _lastSaveTime).TotalMilliseconds < 1000) return;
             _lastSaveTime = DateTime.Now;
             // 更新當前視窗的 session 配置
             this.widgetService.AddOrUpdateSession(this.htmlPath, window.Location, window.TopMost);

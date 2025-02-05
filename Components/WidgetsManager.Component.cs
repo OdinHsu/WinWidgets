@@ -38,7 +38,7 @@ namespace Components
         private TimerService timerService = new TimerService();
         private WidgetManager widgetManager = new WidgetManager();
 
-        private Tuple<int, int, int, int> screenBounds;
+        private string screenBoundsJson;
 
         // 使用 Timer 合併短時間內的多次文件變更事件，避免頻繁觸發 ReloadWidgets
         private System.Timers.Timer _debounceTimer;
@@ -90,8 +90,8 @@ namespace Components
 
             string json = File.ReadAllText("appsettings.json"); // 讀取 JSON 檔案
             var config = JsonConvert.DeserializeObject<dynamic>(json); // 解析成動態物件
-            screenBounds = ScreenSettingAPI.GetScreenBounds(config.ScreenDescription.ToString());
-
+            
+            var screenBounds = ScreenSettingAPI.GetScreenBounds(config.ScreenDescription.ToString());
             if (screenBounds == null)
             {
                 // 获取主屏幕的边界
@@ -107,6 +107,15 @@ namespace Components
                 // 存储为 Tuple 或自定义结构
                 screenBounds = new Tuple<int, int, int, int>(x1, y1, x2, y2);
             }
+
+            var screenBoundsObject = new
+            {
+                Left = screenBounds.Item1,
+                Top = screenBounds.Item2,
+                Right = screenBounds.Item3,
+                Bottom = screenBounds.Item4
+            };
+            screenBoundsJson = JsonConvert.SerializeObject(screenBoundsObject);
 
             AssetService.CreateHTMLFilesDirectory();
 
@@ -329,6 +338,8 @@ namespace Components
             for (int i = 0; i < AssetService.widgets.Widgets.Count; i++)
             {
                 WidgetComponent widget = (WidgetComponent)AssetService.widgets.Widgets[i];
+
+                this.widgetService.InjectJavascript(widget, $"if (typeof getScreenSize === 'function') {{ getScreenSize({screenBoundsJson}); }}");
 
                 switch (hardwareEvent)
                 {

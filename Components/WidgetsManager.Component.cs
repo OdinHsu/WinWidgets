@@ -38,6 +38,8 @@ namespace Components
         private TimerService timerService = new TimerService();
         private WidgetManager widgetManager = new WidgetManager();
 
+        private Tuple<int, int, int, int> screenBounds;
+
         // 使用 Timer 合併短時間內的多次文件變更事件，避免頻繁觸發 ReloadWidgets
         private System.Timers.Timer _debounceTimer;
 
@@ -85,6 +87,26 @@ namespace Components
             options.CefCommandLineArgs.Add("enable-media-stream", "1");
             options.CefCommandLineArgs["autoplay-policy"] = "no-user-gesture-required";
             Cef.Initialize(options);
+
+            string json = File.ReadAllText("appsettings.json"); // 讀取 JSON 檔案
+            var config = JsonConvert.DeserializeObject<dynamic>(json); // 解析成動態物件
+            screenBounds = ScreenSettingAPI.GetScreenBounds(config.ScreenDescription.ToString());
+
+            if (screenBounds == null)
+            {
+                // 获取主屏幕的边界
+                var screen = System.Windows.Forms.Screen.PrimaryScreen;
+                var bounds = screen.Bounds;
+
+                // 转换为 (x1, y1, x2, y2) 格式
+                int x1 = bounds.Left;    // 左上角 X 坐标
+                int y1 = bounds.Top;     // 左上角 Y 坐标
+                int x2 = bounds.Right;   // 右下角 X 坐标
+                int y2 = bounds.Bottom;  // 右下角 Y 坐标
+
+                // 存储为 Tuple 或自定义结构
+                screenBounds = new Tuple<int, int, int, int>(x1, y1, x2, y2);
+            }
 
             AssetService.CreateHTMLFilesDirectory();
 

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="applicationTitle" content="Disk Information" />
+    <meta name="windowSize" content="500 250" />
+    <meta name="windowBorderRadius" content="100" />
+    <meta name="previewSize" content="300 100" />
+    <meta name="windowOpacity" content="178" />
+    <title>Disk Widget</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #1c1c3c, #2e2e58);
+            /* 深藍到紫色漸變 */
+        }
+
+        .widget {
+            width: 300px;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 15px;
+            color: #fff;
+            /* 白色文字 */
+        }
+
+        .widget-header {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #00bcd4;
+            /* 科技風格的亮藍色 */
+            text-align: center;
+        }
+
+        .widget-data {
+            margin: 15px 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        /* .progress-bar-container {
+            position: relative;
+            width: 100%;
+            height: 20px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #00bcd4, #76ff03);
+            // 從亮藍到亮綠的漸變 
+            transition: width 0.5s ease-in-out;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            line-height: 20px;
+        } */
+
+        select {
+            width: 100%;
+            padding: 10px;
+            background-color: #9763ad;
+            border: 1px solid #665d85;
+            color: #fefcfc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            display: block;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="widget">
+        <div class="widget-header">Disk Overview</div>
+        <select id="diskSelector">
+            <!-- 下拉選單的選項會根據硬碟動態生成 -->
+        </select>
+        <div class="widget-data" id="diskData">
+            <p><strong>Used space:</strong> -</p>
+            <p><strong>Activity:</strong> -</p>
+            <p><strong>Read Rate:</strong> </p>
+            <p><strong>Write Rate:</strong> </p>
+        </div>
+        <!-- <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar" style="width: 0%;"></div>
+            <div class="progress-text" id="progressText">0%</div>
+        </div> -->
+    </div>
+
+    <script>
+        let storageInfoMap = {};
+        let firstTimeUpdate = true;
+
+        // 初始化下拉選單
+        function populateDiskSelector() {
+            const diskSelector = document.getElementById('diskSelector');
+            diskSelector.innerHTML = ''; // 清空選單內容
+            Object.keys(storageInfoMap).forEach(disk => {
+                const option = document.createElement('option');
+                option.value = disk;
+                option.textContent = disk;
+                diskSelector.appendChild(option);
+            });
+
+            // 預設選擇第一個硬碟
+            if (Object.keys(storageInfoMap).length > 0) {
+                diskSelector.value = Object.keys(storageInfoMap)[0];
+                updateDiskData(storageInfoMap[diskSelector.value]);
+            }
+
+            // 註冊下拉選單變更事件
+            diskSelector.addEventListener('change', (e) => {
+                const selectedDisk = e.target.value;
+                updateDiskData(storageInfoMap[selectedDisk]);
+            });
+
+            diskSelector.addEventListener('focus', () => {
+                CefSharp.PostMessage('disableTopMost');
+            });
+
+            diskSelector.addEventListener('blur', () => {
+                CefSharp.PostMessage('enableTopMost');
+            });
+        }
+
+        // 更新硬碟資訊
+        function updateDiskData(diskData) {
+            const usedSpace = diskData?.UsedSpace || 0;  // 默認為0
+            const totalActivity = diskData?.TotalActivity || 0;  // 默認為0
+            const readRate = diskData?.ReadRate || 0;  // 默認為0
+            const writeRate = diskData?.WriteRate || 0;  // 默認為0
+
+            const diskDataDiv = document.getElementById('diskData');
+            diskDataDiv.innerHTML = ` 
+                <p><strong>Used space:</strong> ${usedSpace.toFixed(2)}%</p>
+<p><strong>Activity:</strong> ${totalActivity.toFixed(1)}%</p>
+<p><strong>Read Rate:</strong> ${(readRate / 1024).toFixed(1)} KB/s</p>
+<p><strong>Write Rate:</strong> ${(writeRate / 1024).toFixed(1)} KB/s</p>
+
+            `;
+
+            // 更新進度條
+            // const progressBar = document.getElementById('progressBar');
+            // const progressText = document.getElementById('progressText');
+            // const usedSpacePercentage = Math.min(Math.max(usedSpace, 0), 100);  // 確保進度條數值在0-100之間
+            // progressBar.style.width = `${usedSpacePercentage}%`;
+            // progressText.textContent = `${usedSpacePercentage.toFixed(2)}%`;
+        }
+
+        // 假設這個函式會被後端觸發來提供硬碟資料
+        function onNativeDiskInfoEvent(rawData) {
+            storageInfoMap = rawData;
+            if (firstTimeUpdate) {
+                firstTimeUpdate = false;
+                populateDiskSelector();
+            }
+            const selectedDisk = document.getElementById('diskSelector').value;
+            updateDiskData(storageInfoMap[selectedDisk]);
+        }
+    </script>
+
+</body>
+
+</html>

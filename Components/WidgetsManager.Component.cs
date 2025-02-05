@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
 using WidgetsDotNet.Properties;
@@ -73,7 +74,16 @@ namespace Components
         public WidgetsManagerComponent()
         {
             CefSettings options = new CefSettings();
-            options.CefCommandLineArgs.Add("disable-web-security");
+
+            // 允许本地文件访问
+            options.CefCommandLineArgs.Add("allow-file-access-from-files", "1");
+            options.CefCommandLineArgs.Add("allow-universal-access-from-files");
+
+            // 禁用安全策略
+            options.CefCommandLineArgs.Add("disable-web-security", "1");
+
+            options.CefCommandLineArgs.Add("enable-media-stream", "1");
+            options.CefCommandLineArgs["autoplay-policy"] = "no-user-gesture-required";
             Cef.Initialize(options);
 
             AssetService.CreateHTMLFilesDirectory();

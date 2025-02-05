@@ -15,16 +15,6 @@ namespace Services
         private static readonly TimeSpan CacheExpiry = TimeSpan.FromSeconds(5);
 
         /// <summary>
-        /// Get battery level in percentage
-        /// </summary>
-        /// <returns>Battery level in percent</returns>
-        public string GetBatteryLevelPercentage()
-        {
-            PowerStatus powerStatus = System.Windows.Forms.SystemInformation.PowerStatus;
-            return powerStatus.BatteryLifePercent.ToString("P0"); // 格式化為百分比
-        }
-
-        /// <summary>
         /// Get CPU information (including usage, cores, threads, etc.)
         /// </summary>
         /// <returns>CPU info in JSON format</returns>

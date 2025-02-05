@@ -28,8 +28,8 @@
             border-radius: 12px;
             padding: 15px;
             color: #fff;
-            background-color: rgba(0, 0, 0, 0.8);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            /* background-color: rgba(0, 0, 0, 0.8); */
+            /* box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); */
         }
 
         .widget-header {
@@ -43,15 +43,15 @@
         .widget-data {
             margin: 15px 0;
             font-size: 16px;
-            line-height: 1.5;
+            line-height: 1.0;
         }
 
         select {
             width: 100%;
             padding: 10px;
-            background-color: #333;
-            border: 1px solid #888;
-            color: #fff;
+            background-color: #9763ad;
+            border: 1px solid #665d85;
+            color: #fefcfc;
             border-radius: 5px;
             margin-bottom: 10px;
             font-size: 16px;
@@ -70,12 +70,12 @@
         <div class="widget-header">GPU Overview</div>
         <select id="gpuSelect"></select>
         <div class="widget-data" id="gpuData">
-            <p><strong>GPU:</strong> -</p>
-            <p><strong>Usage:</strong> -</p>
+            <!-- <p><strong>GPU:</strong> -</p> -->
+            <p><strong>Utilization:</strong> -</p>
             <p><strong>Temperature:</strong> -</p>
-            <p><strong>Memory Used:</strong> -</p>
-            <p><strong>Memory Total:</strong> -</p>
-            <p><strong>Memory Free:</strong> -</p>
+            <p><strong>Memory Used/Total:</strong> -</p>
+            <!-- <p><strong>Memory Total:</strong> -</p>
+            <p><strong>Memory Free:</strong> -</p> -->
         </div>
     </div>
 
@@ -87,15 +87,27 @@
         // 更新 GPU 資訊
         function updateGpuInfo(gpuInfo) {
             const gpuDataDiv = document.getElementById('gpuData');
-            gpuDataDiv.innerHTML = ` 
-                <p><strong>GPU:</strong> ${gpuInfo.Name}</p>
-                <p><strong>Usage:</strong> ${gpuInfo.gpuUtilization.toFixed(2)}%</p>
-                <p><strong>Temperature:</strong> ${gpuInfo.gpuTemperature}°C</p>
-                <p><strong>Memory Used:</strong> ${gpuInfo.gpuMemoryUsed}MB</p>
-                <p><strong>Memory Total:</strong> ${gpuInfo.gpuMemoryTotal}MB</p>
-                <p><strong>Memory Free:</strong> ${gpuInfo.gpuMemoryFree}MB</p>
-            `;
+
+            // 初始化顯示的內容
+            let gpuInfoHtml = '';
+
+            // 顯示 GPU 使用率
+            gpuInfoHtml += `<p><strong>Utilization:</strong> ${gpuInfo.gpuUtilization.toFixed(2)}%</p>`;
+
+            // 顯示溫度，如果溫度不是 "N/A"
+            if (gpuInfo.gpuTemperature !== "N/A") {
+                gpuInfoHtml += `<p><strong>Temperature:</strong> ${gpuInfo.gpuTemperature.toFixed(2)}°C</p>`;
+            }
+
+            // 顯示記憶體使用量/總量，如果記憶體不是 "N/A"
+            if (gpuInfo.gpuMemoryUsed !== "N/A" && gpuInfo.gpuMemoryTotal !== "N/A") {
+                gpuInfoHtml += `<p><strong>Memory Used/Total:</strong> ${(gpuInfo.gpuMemoryUsed / 1024).toFixed(1)}/${(gpuInfo.gpuMemoryTotal / 1024).toFixed(1)} GB</p>`;
+            }
+
+            // 更新顯示
+            gpuDataDiv.innerHTML = gpuInfoHtml;
         }
+
 
         // 當選擇不同 GPU 時更新顯示
         gpuSelect.addEventListener('change', () => {

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="applicationTitle" content="Network Information" />
+    <meta name="windowSize" content="500 250" />
+    <meta name="windowBorderRadius" content="100" />
+    <meta name="previewSize" content="300 100" />
+    <meta name="windowOpacity" content="178" />
+    <title>Network Widget</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #1c1c3c, #2e2e58);
+        }
+
+        .widget {
+            width: 300px;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 15px;
+            color: #fff;
+        }
+
+        .widget-header {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #00bcd4;
+            text-align: center;
+        }
+
+        .widget-data {
+            margin: 15px 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            background-color: #9763ad;
+            border: 1px solid #665d85;
+            color: #fefcfc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            display: block;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="widget">
+        <div class="widget-header">Network Overview</div>
+        <select id="networkSelector">
+            <!-- 下拉選單的選項會根據網路資料動態生成 -->
+        </select>
+        <div class="widget-data" id="networkData">
+            <p><strong>Upload Speed:</strong> -</p>
+            <p><strong>Download Speed:</strong> -</p>
+        </div>
+    </div>
+
+    <script>
+        let networkInfoMap = {};
+        let firstTimeUpdate = true;
+
+        // 初始化下拉選單
+        function populateNetworkSelector() {
+            const networkSelector = document.getElementById('networkSelector');
+            networkSelector.innerHTML = ''; // 清空選單內容
+            Object.keys(networkInfoMap).forEach(network => {
+                const option = document.createElement('option');
+                option.value = network;
+                option.textContent = network;
+                networkSelector.appendChild(option);
+            });
+
+            // 預設選擇key="currentNetwork"的network
+            if (Object.keys(networkInfoMap).length > 0) {
+                if (networkInfoMap.hasOwnProperty('currentNetwork')) {
+                    networkSelector.value = networkInfoMap['currentNetwork']; // 設為 "currentNetwork"
+                } else {
+                    // 如果沒有 "currentNetwork"，則選擇第一個 key
+                    networkSelector.value = Object.keys(networkInfoMap)[0];
+                }
+                updateNetworkData(networkInfoMap[networkSelector.value]); // 更新選中的網路資料
+            }
+
+            // 註冊下拉選單變更事件
+            networkSelector.addEventListener('change', (e) => {
+                const selectedNetwork = e.target.value;
+                updateNetworkData(networkInfoMap[selectedNetwork]);
+            });
+
+            networkSelector.addEventListener('focus', () => {
+                CefSharp.PostMessage('disableTopMost');
+            });
+
+            networkSelector.addEventListener('blur', () => {
+                CefSharp.PostMessage('enableTopMost');
+            });
+        }
+
+        // 更新網路資訊
+        function updateNetworkData(networkData) {
+            const uploadSpeed = formatSpeed(networkData?.UploadSpeed || 0); // 默認為0
+            const downloadSpeed = formatSpeed(networkData?.DownloadSpeed || 0); // 默認為0
+
+            const networkDataDiv = document.getElementById('networkData');
+            networkDataDiv.innerHTML = `
+                <p><strong>Upload Speed:</strong> ${uploadSpeed}</p>
+                <p><strong>Download Speed:</strong> ${downloadSpeed}</p>
+            `;
+        }
+
+        // 格式化速度單位
+        function formatSpeed(speedInBytes) {
+            if (speedInBytes >= 1024 * 1024) {
+                return (speedInBytes / (1024 * 1024)).toFixed(1) + ' MB/s';
+            } else {
+                return (speedInBytes / 1024).toFixed(1) + ' KB/s';
+            }
+        }
+
+        // 假設這個函式會被後端觸發來提供網路資料
+        function onNativeNetworkInfoEvent(rawData) {
+            networkInfoMap = rawData;
+            if (firstTimeUpdate) {
+                firstTimeUpdate = false;
+                populateNetworkSelector();
+            }
+            const selectedNetwork = document.getElementById('networkSelector').value;
+            updateNetworkData(networkInfoMap[selectedNetwork]);
+        }
+    </script>
+
+</body>
+
+</html>

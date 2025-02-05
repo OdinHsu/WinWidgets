@@ -220,32 +220,25 @@
     <Content Include="Assets\style.css">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\Templates\availableSpace.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assets\Templates\battery.html" />
-    <Content Include="Assets\Templates\calculator.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assets\Templates\codeeditor.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Assets\Templates\cpuinfo.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\Templates\digital-clock.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\Templates\diskinfo.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\Templates\gpuinfo.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\Templates\keyPressed.html">
+    <Content Include="Assets\Templates\imageplayer.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\Templates\media-player.html">
+    <Content Include="Assets\Templates\memoryinfo.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\Templates\simpleClock.html">
+    <Content Include="Assets\Templates\networkinfo.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\Templates\stopwatch.html">
@@ -266,7 +259,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CefSharp.WinForms">
-      <Version>114.2.120</Version>
+      <Version>132.3.11</Version>
     </PackageReference>
     <PackageReference Include="Hardware.Info">
       <Version>101.0.0</Version>

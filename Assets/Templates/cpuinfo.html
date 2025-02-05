@@ -93,7 +93,7 @@
     }
 
     let chartInstance;
-    const maxHistoryLength = 15; // 折線圖顯示的數據點數量
+    const maxHistoryLength = 100; // 折線圖顯示的數據點數量
     const cpuUsageHistory = new CircularBuffer(maxHistoryLength);
 
     function onNativeCPUInfoEvent(cpuData) {

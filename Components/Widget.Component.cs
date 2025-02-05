@@ -212,6 +212,9 @@ namespace Components
             }
             else
             {
+                // test
+                Console.WriteLine(message);
+
                 // 處理其他消息，例如更新配置
                 this.widgetService.SetConfiguration(this, message);
             }

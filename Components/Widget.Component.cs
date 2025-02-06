@@ -86,6 +86,25 @@ namespace Components
             return JsonConvert.DeserializeObject<dynamic>(json);
         });
 
+        public WidgetComponent()
+        {
+            var config = _cachedConfig.Value; // 解析成動態物件
+            screenBounds = ScreenSettingAPI.GetScreenBounds(config.ScreenDescription.ToString());
+            if (screenBounds == null)
+            {
+                // 获取主屏幕的边界
+                var screen = System.Windows.Forms.Screen.PrimaryScreen;
+                var bounds = screen.Bounds;
+                // 转换为 (x1, y1, x2, y2) 格式
+                int x1 = bounds.Left;    // 左上角 X 坐标
+                int y1 = bounds.Top;     // 左上角 Y 坐标
+                int x2 = bounds.Right;   // 右下角 X 坐标
+                int y2 = bounds.Bottom;  // 右下角 Y 坐标
+                // 存储为 Tuple 或自定义结构
+                screenBounds = new Tuple<int, int, int, int>(x1, y1, x2, y2);
+            }
+        }
+
         public override void CreateWindow(int width, int height, string title, bool save, Point position = default(Point), bool? alwaysOnTop = null)
         {
             new Thread(() =>
@@ -93,16 +112,11 @@ namespace Components
                 POINT mousePos;
                 GetCursorPos(out mousePos);
 
-                // 使用時直接取用
-                var config = _cachedConfig.Value;
-
-                var bounds = ScreenSettingAPI.GetScreenBounds(config.ScreenDescription.ToString());  // 返回的是元組 (left, top, right, bottom)
-                if (position == default(Point) && bounds != null)
-                {
-                    position = new Point(bounds.Item1+50, bounds.Item2+50);
-                }
 
                 var metaTags = htmlDocService.GetAllMetaTags(htmlPath);
+                string appTitle = metaTags.TryGetValue("applicationTitle", out var titles) ? titles : null;
+
+
                 string sizeString = metaTags.TryGetValue("windowSize", out var size) ? size : null;
                 string radiusString = metaTags.TryGetValue("windowBorderRadius", out var radius) ? radius : null;
                 string locationString = metaTags.TryGetValue("windowLocation", out var location) ? location : null;
@@ -116,6 +130,18 @@ namespace Components
                 byte opacity = (byte)(opacityString != null ? byte.Parse(opacityString.Split(' ')[0]) : 255);
                 bool topMost = topMostString != null ? bool.Parse(topMostString.Split(' ')[0]) : false;
                 topMost = alwaysOnTop.HasValue ? (bool)alwaysOnTop : topMost;
+
+                var bounds = screenBounds;
+                if (position == default(Point) && bounds != null)
+                {
+                    position = new Point(bounds.Item1, bounds.Item2);
+                    if (appTitle == "background")
+                    {
+                        position = new Point(bounds.Item1, bounds.Item2);
+                        this.width = bounds.Item3 - bounds.Item1 + 1;
+                        this.height = bounds.Item4 - bounds.Item2 + 1;
+                    }
+                }
 
                 window = new WidgetForm();
                 window.Size = new Size(this.width, this.height);
@@ -149,6 +175,10 @@ namespace Components
         private void OnBrowserInitialized(object sender, EventArgs e)
         {
             this.timerService.CreateTimer(33, OnBrowserUpdateTick, true, true);
+            if (attribute == "background")
+            {
+                SetWindowPos(window.Handle, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+            }
             this.widgetService.InjectJavascript(
                 this, 
                 $"if (typeof onGetConfiguration === 'function') onGetConfiguration({JsonConvert.SerializeObject(configuration.settings)});",
@@ -159,16 +189,13 @@ namespace Components
 
         private void UpdateSession()
         {
-            if ((DateTime.Now - _lastSaveTime).TotalMilliseconds < 1000) return;
-            _lastSaveTime = DateTime.Now;
-            // 更新當前視窗的 session 配置
             this.widgetService.AddOrUpdateSession(this.htmlPath, window.Location, window.TopMost);
         }
 
         private void OnBrowserUpdateTick(object sender, ElapsedEventArgs e)
         {
             // 檢查是否處於移動模式
-            if (!this.moveModeEnabled) return;
+            if (!this.moveModeEnabled || attribute == "background") return;  // background 不可移動
 
             // 獲取滑鼠當前位置
             if (GetCursorPos(out POINT pos))
@@ -219,6 +246,10 @@ namespace Components
                     // 滑鼠在範圍內，執行操作
                     window.Invoke(new Action(() => window.TopMost = window.isTopMost));
                 }
+            }
+            else if (message == "background")
+            {
+                SetWindowPos(window.Handle, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
             }
             else
             {

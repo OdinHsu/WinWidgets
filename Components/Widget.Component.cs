@@ -10,6 +10,7 @@ using System.Threading;
 using System.Timers;
 using System.Windows.Forms;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace Components
 {
@@ -31,6 +32,15 @@ namespace Components
         private TimerService timerService = new TimerService();
 
         private DateTime _lastSaveTime = DateTime.MinValue;
+
+        private Tuple<int, int, int, int> screenBounds;
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+        private static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
+        private const UInt32 SWP_NOMOVE = 0x0002;
+        private const UInt32 SWP_NOSIZE = 0x0001;
+        private const UInt32 SWP_NOACTIVATE = 0x0010;
+        public string attribute { get; set; }
 
         public override IntPtr handle
         {

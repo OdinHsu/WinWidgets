@@ -116,7 +116,7 @@ namespace Components
                 var metaTags = htmlDocService.GetAllMetaTags(htmlPath);
                 string appTitle = metaTags.TryGetValue("applicationTitle", out var titles) ? titles : null;
 
-                //attribute = appTitle;
+                attribute = appTitle;
 
                 string sizeString = metaTags.TryGetValue("windowSize", out var size) ? size : null;
                 string radiusString = metaTags.TryGetValue("windowBorderRadius", out var radius) ? radius : null;
@@ -133,7 +133,7 @@ namespace Components
                 topMost = alwaysOnTop.HasValue ? (bool)alwaysOnTop : topMost;
 
                 var bounds = screenBounds;
-                if (bounds != null)
+                if (position == default(Point) && bounds != null)
                 {
                     position = new Point(bounds.Item1, bounds.Item2);
                     if (appTitle == "background")

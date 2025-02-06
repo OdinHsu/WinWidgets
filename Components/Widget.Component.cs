@@ -156,7 +156,7 @@ namespace Components
                 window.Activated += OnFormActivated;
                 window.BackColor = Color.Black;
 
-                this.windowService.SetWindowTransparency(window.Handle, opacity);
+                //this.windowService.SetWindowTransparency(window.Handle, opacity);  // 透明度
                 this.windowService.HideWindowFromProgramSwitcher(window.Handle);
                 this.configuration = this.widgetService.GetConfiguration(this);
 
@@ -200,7 +200,7 @@ namespace Components
         private void OnBrowserUpdateTick(object sender, ElapsedEventArgs e)
         {
             // 檢查是否處於移動模式
-            if (!this.moveModeEnabled) return;  // background 不可移動
+            if (!this.moveModeEnabled || attribute == "background") return;  // background 不可移動
 
             // 獲取滑鼠當前位置
             if (GetCursorPos(out POINT pos))

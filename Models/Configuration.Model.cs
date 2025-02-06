@@ -16,6 +16,15 @@ namespace Models
         public Point position { get; set; }
 
         public bool alwaysOnTop { get; set; }
+
+        public int height { get; set; }
+        
+        public int width { get; set; }
+
+        /// <summary>
+        /// Unique identifier for the widget instance
+        /// </summary>
+        public int id { get; set; }
     }
 
     internal struct Configuration

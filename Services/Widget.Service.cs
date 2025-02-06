@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Drawing;
 using System.IO;
+using System.Windows;
 using System.Windows.Forms;
 
 namespace Services
@@ -29,7 +30,7 @@ namespace Services
             widget.window.Invoke(new MethodInvoker(delegate ()
             {
                 widget.window.TopMost = !widget.window.TopMost;
-                AddOrUpdateSession(widget.htmlPath, widget.window.Location, widget.window.TopMost);
+                AddOrUpdateSession(widget.htmlPath, widget.window.Location, widget.window.TopMost, widget.window.Size.Width, widget.window.Size.Height);
             }));
         }
 
@@ -80,7 +81,7 @@ namespace Services
         /// <param name="path">Path of the widget</param>
         /// <param name="position">Position of the widget</param>
         /// <param name="alwaysOnTop">Whether the widget is "Always on top"</param>
-        public void AddOrUpdateSession(string path, Point position, bool alwaysOnTop)
+        public void AddOrUpdateSession(string path, System.Drawing.Point position, bool alwaysOnTop, int width, int height)
         {
             Configuration configuration = AssetService.GetConfigurationFile();
 
@@ -92,7 +93,9 @@ namespace Services
                     {
                         path = path,
                         position = position,
-                        alwaysOnTop = alwaysOnTop
+                        alwaysOnTop = alwaysOnTop,
+                        height = height,
+                        width = width
                     };
 
                     AssetService.OverwriteConfigurationFile(configuration);
@@ -103,7 +106,10 @@ namespace Services
             configuration.lastSessionWidgets.Add(new WidgetConfiguration
             {
                 path = path,
-                position = position
+                position = position,
+                alwaysOnTop = alwaysOnTop,
+                height = height,
+                width = width
             });
 
             AssetService.OverwriteConfigurationFile(configuration);

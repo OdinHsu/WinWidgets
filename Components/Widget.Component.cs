@@ -138,8 +138,8 @@ namespace Components
                     if (appTitle == "background")
                     {
                         position = new Point(bounds.Item1, bounds.Item2);
-                        this.width = bounds.Item3 - bounds.Item1 + 1;
-                        this.height = bounds.Item4 - bounds.Item2 + 1;
+                        this.width = bounds.Item3 - bounds.Item1;
+                        this.height = bounds.Item4 - bounds.Item2;
                     }
                 }
 
@@ -161,7 +161,7 @@ namespace Components
 
                 if (save)
                 {
-                    this.widgetService.AddOrUpdateSession(htmlPath, new Point(locationX, locationY), topMost);
+                    this.widgetService.AddOrUpdateSession(htmlPath, new Point(position.X, position.Y), topMost, this.width, this.height);
                     AssetService.OverwriteConfigurationFile(AssetService.GetConfigurationFile());
                 }
 
@@ -189,7 +189,7 @@ namespace Components
 
         private void UpdateSession()
         {
-            this.widgetService.AddOrUpdateSession(this.htmlPath, window.Location, window.TopMost);
+            this.widgetService.AddOrUpdateSession(this.htmlPath, window.Location, window.TopMost, window.Size.Width, window.Size.Height);
         }
 
         private void OnBrowserUpdateTick(object sender, ElapsedEventArgs e)

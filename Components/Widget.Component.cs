@@ -116,6 +116,7 @@ namespace Components
                 var metaTags = htmlDocService.GetAllMetaTags(htmlPath);
                 string appTitle = metaTags.TryGetValue("applicationTitle", out var titles) ? titles : null;
 
+                //attribute = appTitle;
 
                 string sizeString = metaTags.TryGetValue("windowSize", out var size) ? size : null;
                 string radiusString = metaTags.TryGetValue("windowBorderRadius", out var radius) ? radius : null;
@@ -132,14 +133,14 @@ namespace Components
                 topMost = alwaysOnTop.HasValue ? (bool)alwaysOnTop : topMost;
 
                 var bounds = screenBounds;
-                if (position == default(Point) && bounds != null)
+                if (bounds != null)
                 {
                     position = new Point(bounds.Item1, bounds.Item2);
                     if (appTitle == "background")
                     {
                         position = new Point(bounds.Item1, bounds.Item2);
-                        this.width = bounds.Item3 - bounds.Item1;
-                        this.height = bounds.Item4 - bounds.Item2;
+                        this.width = bounds.Item3 - bounds.Item1 + 1;
+                        this.height = bounds.Item4 - bounds.Item2 + 1;
                     }
                 }
 
@@ -179,6 +180,10 @@ namespace Components
             {
                 SetWindowPos(window.Handle, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
             }
+            else
+            {
+                //this.window.TopMost = true;
+            }
             this.widgetService.InjectJavascript(
                 this, 
                 $"if (typeof onGetConfiguration === 'function') onGetConfiguration({JsonConvert.SerializeObject(configuration.settings)});",
@@ -195,7 +200,7 @@ namespace Components
         private void OnBrowserUpdateTick(object sender, ElapsedEventArgs e)
         {
             // 檢查是否處於移動模式
-            if (!this.moveModeEnabled || attribute == "background") return;  // background 不可移動
+            if (!this.moveModeEnabled) return;  // background 不可移動
 
             // 獲取滑鼠當前位置
             if (GetCursorPos(out POINT pos))

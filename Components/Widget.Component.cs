@@ -41,7 +41,7 @@ namespace Components
         private const UInt32 SWP_NOSIZE = 0x0001;
         private const UInt32 SWP_NOACTIVATE = 0x0010;
         public string attribute { get; set; }
-
+        public int id {  get; set; }
         public override IntPtr handle
         {
             get { return _handle; }
@@ -159,10 +159,13 @@ namespace Components
                 //this.windowService.SetWindowTransparency(window.Handle, opacity);  // 透明度
                 this.windowService.HideWindowFromProgramSwitcher(window.Handle);
                 this.configuration = this.widgetService.GetConfiguration(this);
+                Configuration config = AssetService.GetConfigurationFile();
+
+                id = config.lastSessionWidgets.Count;
 
                 if (save)
                 {
-                    this.widgetService.AddOrUpdateSession(htmlPath, new Point(position.X, position.Y), topMost, this.width, this.height);
+                    this.widgetService.AddOrUpdateSession(htmlPath, new Point(position.X, position.Y), topMost, this.width, this.height, this.id);
                     AssetService.OverwriteConfigurationFile(AssetService.GetConfigurationFile());
                 }
 
@@ -194,7 +197,7 @@ namespace Components
 
         private void UpdateSession()
         {
-            this.widgetService.AddOrUpdateSession(this.htmlPath, window.Location, window.TopMost, window.Size.Width, window.Size.Height);
+            this.widgetService.AddOrUpdateSession(this.htmlPath, window.Location, window.TopMost, window.Size.Width, window.Size.Height, this.id);
         }
 
         private void OnBrowserUpdateTick(object sender, ElapsedEventArgs e)

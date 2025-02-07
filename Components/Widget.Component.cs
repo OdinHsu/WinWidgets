@@ -42,6 +42,8 @@ namespace Components
         private const UInt32 SWP_NOACTIVATE = 0x0010;
         public string attribute { get; set; }
         public int id {  get; set; }
+
+        private int _nextWidgetId = 0;
         public override IntPtr handle
         {
             get { return _handle; }
@@ -161,7 +163,15 @@ namespace Components
                 this.configuration = this.widgetService.GetConfiguration(this);
                 Configuration config = AssetService.GetConfigurationFile();
 
-                id = config.lastSessionWidgets.Count;
+                foreach (var widget in config.lastSessionWidgets)
+                {
+                    // 這裡假設 widget.id 是已分配的唯一值
+                    if (widget.id >= _nextWidgetId)
+                        _nextWidgetId = widget.id + 1;
+                }
+
+                // 當需要新增 widget 時，分配新 id
+                this.id = _nextWidgetId++;
 
                 if (save)
                 {

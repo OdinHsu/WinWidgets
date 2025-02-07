@@ -186,6 +186,72 @@ namespace Components
             }).Start();
         }
 
+        void OverLapHandle()
+        {
+            Configuration config = AssetService.GetConfigurationFile();
+            // 假設 screenBounds 為 Tuple<int, int, int, int>，依序為 (x1, y1, x2, y2)
+            var bounds = screenBounds;
+            int leftBound = bounds.Item1;
+            int topBound = bounds.Item2;
+            int rightBound = bounds.Item3;
+            int bottomBound = bounds.Item4;
+
+            // 設定移動間隔（可依需求調整）
+            int offset = 10;
+
+            // 新 widget 的初始位置與尺寸（假設此處取自 window 與 this.width/height）
+            int widgetWidth = this.width;
+            int widgetHeight = this.height;
+            int newX = window.Location.X;
+            int newY = window.Location.Y;
+
+            // 以新 widget 的初始位置建立矩形
+            Rectangle newWidgetRect = new Rectangle(newX, newY, widgetWidth, widgetHeight);
+
+            // 利用 while 迴圈找出一個既不重疊又不超過螢幕範圍的位置
+            while (true)
+            {
+                bool overlap = false;
+
+                // 檢查是否與已存在的 widget 重疊
+                foreach (var widget in config.lastSessionWidgets)
+                {
+                    // 假設 widget.position 為 Point，widget.width 與 widget.height 為尺寸
+                    Rectangle existingRect = new Rectangle(widget.position.X, widget.position.Y, widget.width, widget.height);
+                    if (newWidgetRect.IntersectsWith(existingRect))
+                    {
+                        overlap = true;
+                        // 若重疊則向右移動
+                        newWidgetRect.X += offset;
+
+                        // 如果超過右邊界，則換行：將 x 設為左邊界，並讓 y 增加 widget 高度加上間隔
+                        if (newWidgetRect.Right > rightBound)
+                        {
+                            newWidgetRect.X = leftBound;
+                            newWidgetRect.Y += widgetHeight + offset;
+                        }
+                        // 找到重疊狀況後，跳出 foreach 重新檢查
+                        break;
+                    }
+                }
+
+                // 如果沒有重疊，再檢查是否超過螢幕的下邊界
+                if (!overlap)
+                {
+                    // 如果新 widget 的下邊界超過螢幕下邊界，就不再調整（或視需求做其他處理）
+                    if (newWidgetRect.Bottom > bottomBound)
+                    {
+                        // 例如：將 y 限制在螢幕內
+                        newWidgetRect.Y = bottomBound - widgetHeight;
+                    }
+                    break;
+                }
+            }
+
+            // 最後將新 widget 設定到計算好的位置
+            window.Location = new Point(newWidgetRect.X, newWidgetRect.Y);
+        }
+
         private void OnBrowserInitialized(object sender, EventArgs e)
         {
             this.timerService.CreateTimer(33, OnBrowserUpdateTick, true, true);
@@ -195,6 +261,21 @@ namespace Components
             }
             else
             {
+                //Configuration config = AssetService.GetConfigurationFile();
+                //foreach (var widget in config.lastSessionWidgets)
+                //{
+                //    var bounds = screenBounds;  // Tuple<int, int, int, int> => x1, y1, x2, y2
+                //    // 需要讓新的widget不重疊
+                //    // 已經存在的widget
+                //    widget.position
+                //        widget.width
+                //        widget.height
+                //    // 新的widget
+                //    window.Location.X
+                //        window.Location.Y
+                //        this.width
+                //        this.height
+                //}
                 //this.window.TopMost = true;
             }
             this.widgetService.InjectJavascript(

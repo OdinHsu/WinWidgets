@@ -109,13 +109,12 @@ namespace Components
             }
         }
 
-        public override void CreateWindow(int width, int height, string title, bool save, Point position = default(Point), bool? alwaysOnTop = null)
+        public override void CreateWindow(int width, int height, string title, bool save, Point position = default(Point), bool? alwaysOnTop = null, int id = -1)
         {
             new Thread(() =>
             {
                 POINT mousePos;
                 GetCursorPos(out mousePos);
-
 
                 var metaTags = htmlDocService.GetAllMetaTags(htmlPath);
                 string appTitle = metaTags.TryGetValue("applicationTitle", out var titles) ? titles : null;
@@ -168,15 +167,22 @@ namespace Components
                 // TODO BUG
                 // id有問題，會複製多一個widget
 
-                foreach (var widget in config.lastSessionWidgets)
+                if (id == -1)
                 {
-                    // 這裡假設 widget.id 是已分配的唯一值
-                    if (widget.id >= _nextWidgetId && widget.path != htmlPath)
-                        _nextWidgetId = widget.id + 1;
+                    foreach (var widget in config.lastSessionWidgets)
+                    {
+                        // 這裡假設 widget.id 是已分配的唯一值
+                        if (widget.id >= _nextWidgetId && widget.path != htmlPath)
+                            _nextWidgetId = widget.id + 1;
+                    }
+                    this.id = _nextWidgetId++;
+                }
+                else
+                {
+                    this.id = id;
                 }
 
                 // 當需要新增 widget 時，分配新 id
-                this.id = _nextWidgetId++;
 
                 if (save)
                 {

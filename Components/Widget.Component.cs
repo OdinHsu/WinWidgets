@@ -177,7 +177,7 @@ namespace Components
 
                 if (save)
                 {
-                    OverLapHandle();
+                    if (!OverLapHandle()) return;
                     this.widgetService.AddOrUpdateSession(htmlPath, window.Location, topMost, this.width, this.height, this.id);
                     AssetService.OverwriteConfigurationFile(AssetService.GetConfigurationFile());
                 }
@@ -189,17 +189,7 @@ namespace Components
             }).Start();
         }
 
-        // -1 代表沒有碰撞
-        int OverLapPos(List<Rectangle> existingRects, Rectangle newRect)
-        {
-            // 改用并行查询提升碰撞检测效率（适用于大量矩形时）
-            return existingRects
-                .AsParallel()
-                .Select((rect, index) => new { rect, index })
-                .FirstOrDefault(x => x.rect.IntersectsWith(newRect))?.index ?? -1;
-        }
-
-        void OverLapHandle()
+        bool OverLapHandle()
         {
             const int OFFSET = 10;  // 统一间距常量
             Configuration config = AssetService.GetConfigurationFile();
@@ -289,15 +279,11 @@ namespace Components
             // 兜底策略：优先尝试右上角
             if (!foundPosition)
             {
-                newRect.X = right - newRect.Width;
-                newRect.Y = top;
-                if (OverLapPos(existingRects.Select(x => x.rect).ToList(), newRect) != -1)
-                {
-                    newRect.Y = bottom - newRect.Height;
-                }
+                return false;
             }
 
             window.Location = new Point(newRect.X, newRect.Y);
+            return true;
         }
 
         private void OnBrowserInitialized(object sender, EventArgs e)

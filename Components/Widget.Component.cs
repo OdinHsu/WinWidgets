@@ -165,10 +165,13 @@ namespace Components
                 this.configuration = this.widgetService.GetConfiguration(this);
                 Configuration config = AssetService.GetConfigurationFile();
 
+                // TODO BUG
+                // id有問題，會複製多一個widget
+
                 foreach (var widget in config.lastSessionWidgets)
                 {
                     // 這裡假設 widget.id 是已分配的唯一值
-                    if (widget.id >= _nextWidgetId)
+                    if (widget.id >= _nextWidgetId && widget.path != htmlPath)
                         _nextWidgetId = widget.id + 1;
                 }
 

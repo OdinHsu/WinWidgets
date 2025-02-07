@@ -11,6 +11,8 @@ using System.Timers;
 using System.Windows.Forms;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Components
 {
@@ -41,7 +43,7 @@ namespace Components
         private const UInt32 SWP_NOSIZE = 0x0001;
         private const UInt32 SWP_NOACTIVATE = 0x0010;
         public string attribute { get; set; }
-        public int id {  get; set; }
+        public int id { get; set; }
 
         private int _nextWidgetId = 0;
         public override IntPtr handle
@@ -175,7 +177,8 @@ namespace Components
 
                 if (save)
                 {
-                    this.widgetService.AddOrUpdateSession(htmlPath, new Point(position.X, position.Y), topMost, this.width, this.height, this.id);
+                    OverLapHandle();
+                    this.widgetService.AddOrUpdateSession(htmlPath, window.Location, topMost, this.width, this.height, this.id);
                     AssetService.OverwriteConfigurationFile(AssetService.GetConfigurationFile());
                 }
 
@@ -186,70 +189,115 @@ namespace Components
             }).Start();
         }
 
+        // -1 代表沒有碰撞
+        int OverLapPos(List<Rectangle> existingRects, Rectangle newRect)
+        {
+            // 改用并行查询提升碰撞检测效率（适用于大量矩形时）
+            return existingRects
+                .AsParallel()
+                .Select((rect, index) => new { rect, index })
+                .FirstOrDefault(x => x.rect.IntersectsWith(newRect))?.index ?? -1;
+        }
+
         void OverLapHandle()
         {
+            const int OFFSET = 10;  // 统一间距常量
             Configuration config = AssetService.GetConfigurationFile();
-            // 假設 screenBounds 為 Tuple<int, int, int, int>，依序為 (x1, y1, x2, y2)
             var bounds = screenBounds;
-            int leftBound = bounds.Item1;
-            int topBound = bounds.Item2;
-            int rightBound = bounds.Item3;
-            int bottomBound = bounds.Item4;
+            int left = bounds.Item1, top = bounds.Item2,
+                right = bounds.Item3, bottom = bounds.Item4;
 
-            // 設定移動間隔（可依需求調整）
-            int offset = 10;
+            // 预处理：按X坐标排序并缓存矩形右边界
+            var existingRects = config.lastSessionWidgets
+                .Select(w => new {
+                    rect = new Rectangle(w.position.X, w.position.Y, w.width, w.height),
+                    right = w.position.X + w.width
+                })
+                .OrderBy(x => x.rect.X)
+                .ThenBy(x => x.rect.Y)
+                .ToList();
 
-            // 新 widget 的初始位置與尺寸（假設此處取自 window 與 this.width/height）
-            int widgetWidth = this.width;
-            int widgetHeight = this.height;
-            int newX = window.Location.X;
-            int newY = window.Location.Y;
+            Rectangle newRect = new Rectangle(
+                window.Location.X,
+                window.Location.Y,
+                this.width,
+                this.height
+            );
 
-            // 以新 widget 的初始位置建立矩形
-            Rectangle newWidgetRect = new Rectangle(newX, newY, widgetWidth, widgetHeight);
+            bool foundPosition = false;
+            int maxAttempts = 100;
+            int currentRowMaxHeight = newRect.Height;
+            int baseLineY = newRect.Y;  // 当前行的基准Y坐标
 
-            // 利用 while 迴圈找出一個既不重疊又不超過螢幕範圍的位置
-            while (true)
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
             {
-                bool overlap = false;
+                // 使用预缓存数据加速碰撞检测
+                var collision = existingRects
+                    .Where(x => x.rect.Y < newRect.Bottom && x.rect.Bottom > newRect.Y)
+                    .FirstOrDefault(x => x.right > newRect.X && x.rect.X < newRect.Right);
 
-                // 檢查是否與已存在的 widget 重疊
-                foreach (var widget in config.lastSessionWidgets)
+                if (collision != null)
                 {
-                    // 假設 widget.position 為 Point，widget.width 與 widget.height 為尺寸
-                    Rectangle existingRect = new Rectangle(widget.position.X, widget.position.Y, widget.width, widget.height);
-                    if (newWidgetRect.IntersectsWith(existingRect))
-                    {
-                        overlap = true;
-                        // 若重疊則向右移動
-                        newWidgetRect.X += offset;
+                    // 找到同一行所有可能碰撞的矩形
+                    var sameRowRects = existingRects
+                        .Where(x => x.rect.Bottom > baseLineY && x.rect.Y < (baseLineY + currentRowMaxHeight))
+                        .ToList();
 
-                        // 如果超過右邊界，則換行：將 x 設為左邊界，並讓 y 增加 widget 高度加上間隔
-                        if (newWidgetRect.Right > rightBound)
-                        {
-                            newWidgetRect.X = leftBound;
-                            newWidgetRect.Y += widgetHeight + offset;
-                        }
-                        // 找到重疊狀況後，跳出 foreach 重新檢查
-                        break;
+                    // 计算应移动到的X位置
+                    newRect.X = sameRowRects.Max(r => r.right) + OFFSET;
+
+                    // 更新行高（考虑当前行所有矩形）
+                    currentRowMaxHeight = sameRowRects.Max(r => r.rect.Height);
+                    currentRowMaxHeight = Math.Max(currentRowMaxHeight, newRect.Height);
+
+                    // 换行处理
+                    if (newRect.Right > right)
+                    {
+                        newRect.X = left;
+                        baseLineY += currentRowMaxHeight + OFFSET;  // 按实际行高换行
+                        newRect.Y = baseLineY;
+                        currentRowMaxHeight = newRect.Height;  // 重置行高
                     }
                 }
-
-                // 如果沒有重疊，再檢查是否超過螢幕的下邊界
-                if (!overlap)
+                else
                 {
-                    // 如果新 widget 的下邊界超過螢幕下邊界，就不再調整（或視需求做其他處理）
-                    if (newWidgetRect.Bottom > bottomBound)
+                    // 边界检查优化
+                    newRect.Y = Math.Min(newRect.Y, bottom - newRect.Height);
+                    if (newRect.Y < top) newRect.Y = top;
+
+                    // 最终确认位置有效性
+                    bool validPosition = existingRects.All(x => !x.rect.IntersectsWith(newRect)) &&
+                                        newRect.Bottom <= bottom &&
+                                        newRect.Right <= right;
+
+                    if (validPosition)
                     {
-                        // 例如：將 y 限制在螢幕內
-                        newWidgetRect.Y = bottomBound - widgetHeight;
+                        foundPosition = true;
+                        break;
                     }
-                    break;
+                    else
+                    {
+                        // 若失败则强制换行
+                        baseLineY += currentRowMaxHeight + OFFSET;
+                        newRect.X = left;
+                        newRect.Y = baseLineY;
+                        currentRowMaxHeight = newRect.Height;
+                    }
                 }
             }
 
-            // 最後將新 widget 設定到計算好的位置
-            window.Location = new Point(newWidgetRect.X, newWidgetRect.Y);
+            // 兜底策略：优先尝试右上角
+            if (!foundPosition)
+            {
+                newRect.X = right - newRect.Width;
+                newRect.Y = top;
+                if (OverLapPos(existingRects.Select(x => x.rect).ToList(), newRect) != -1)
+                {
+                    newRect.Y = bottom - newRect.Height;
+                }
+            }
+
+            window.Location = new Point(newRect.X, newRect.Y);
         }
 
         private void OnBrowserInitialized(object sender, EventArgs e)
@@ -261,25 +309,10 @@ namespace Components
             }
             else
             {
-                //Configuration config = AssetService.GetConfigurationFile();
-                //foreach (var widget in config.lastSessionWidgets)
-                //{
-                //    var bounds = screenBounds;  // Tuple<int, int, int, int> => x1, y1, x2, y2
-                //    // 需要讓新的widget不重疊
-                //    // 已經存在的widget
-                //    widget.position
-                //        widget.width
-                //        widget.height
-                //    // 新的widget
-                //    window.Location.X
-                //        window.Location.Y
-                //        this.width
-                //        this.height
-                //}
                 //this.window.TopMost = true;
             }
             this.widgetService.InjectJavascript(
-                this, 
+                this,
                 $"if (typeof onGetConfiguration === 'function') onGetConfiguration({JsonConvert.SerializeObject(configuration.settings)});",
                 true
             );

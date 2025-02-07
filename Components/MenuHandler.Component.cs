@@ -1,6 +1,8 @@
 ﻿using CefSharp;
 using Models;
 using Services;
+using System;
+using System.Runtime.InteropServices;
 
 namespace Components
 {
@@ -9,6 +11,13 @@ namespace Components
         private WidgetComponent widgetComponent;
         private MenuHandlerService menuHandlerService = new MenuHandlerService();
         private WidgetService widgetService = new WidgetService();
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+        private static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
+        private const UInt32 SWP_NOMOVE = 0x0002;
+        private const UInt32 SWP_NOSIZE = 0x0001;
+        private const UInt32 SWP_NOACTIVATE = 0x0010;
 
         public MenuHandlerComponent(WidgetComponent widget)
         {
@@ -25,6 +34,10 @@ namespace Components
 
         public bool OnContextMenuCommand(IWebBrowser chromiumWebBrowser, IBrowser browser, IFrame frame, IContextMenuParams parameters, CefMenuCommand commandId, CefEventFlags eventFlags)
         {
+            if (this.widgetComponent.attribute == "background")
+            {
+                SetWindowPos(this.widgetComponent.window.Handle, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+            }
             switch (commandId)
             {
                 case 0:
@@ -32,7 +45,8 @@ namespace Components
                     return true;
 
                 case (CefMenuCommand)1:
-                    this.widgetService.ToggleTopMost(widgetComponent);
+                    if (this.widgetComponent.attribute != "background")
+                        this.widgetService.ToggleTopMost(widgetComponent);
                     return true;
 
                 case (CefMenuCommand)2:

@@ -133,15 +133,15 @@ namespace Components
                 topMost = alwaysOnTop.HasValue ? (bool)alwaysOnTop : topMost;
 
                 var bounds = screenBounds;
+
                 if (position == default(Point) && bounds != null)
+                    position = new Point(bounds.Item1, bounds.Item2);
+
+                if (appTitle == "background")
                 {
                     position = new Point(bounds.Item1, bounds.Item2);
-                    if (appTitle == "background")
-                    {
-                        position = new Point(bounds.Item1, bounds.Item2);
-                        this.width = bounds.Item3 - bounds.Item1 + 1;
-                        this.height = bounds.Item4 - bounds.Item2 + 1;
-                    }
+                    this.width = bounds.Item3 - bounds.Item1 + 1;
+                    this.height = bounds.Item4 - bounds.Item2 + 1;
                 }
 
                 window = new WidgetForm();

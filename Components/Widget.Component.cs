@@ -19,7 +19,6 @@ namespace Components
     internal class WidgetComponent : WidgetModel
     {
         public bool moveModeEnabled = false;
-        public bool setFirstMove = false;
         private bool isTopMost = false;
 
         private IntPtr _handle;
@@ -232,8 +231,8 @@ namespace Components
             Rectangle newRect = new Rectangle(
                 window.Location.X,
                 window.Location.Y,
-                this.width,
-                this.height
+                this.window.Width,
+                this.window.Height
             );
 
             bool foundPosition = false;
@@ -328,87 +327,128 @@ namespace Components
 
         private void OnBrowserUpdateTick(object sender, ElapsedEventArgs e)
         {
-            // 檢查是否處於移動模式
-            if (!this.moveModeEnabled || attribute == "background") return;  // background 不可移動
+            if (!this.moveModeEnabled || attribute == "background") return;
 
-            // 獲取滑鼠當前位置
             if (GetCursorPos(out POINT pos))
             {
-                // 使用 BeginInvoke 確保 UI 操作執行在正確執行緒，避免阻塞 UI 執行緒
                 window.BeginInvoke(new Action(() =>
                 {
-                    // 计算鼠标移动方向
-                    int deltaX = pos.X - previousPosition.X;
-                    int deltaY = pos.Y - previousPosition.Y;
+                    Rectangle newRect = new Rectangle(pos.X - window.Width / 2, pos.Y - window.Height / 2, window.Width, window.Height);
+                    bool collisionHandled = false;
 
-                    Console.WriteLine(deltaY + " " + deltaX);
-
-                    // 根據滑鼠位置計算新的視窗矩形
-                    Rectangle newRect = new Rectangle(pos.X - width / 2, pos.Y - height / 2, window.Width, window.Height);
-
-                    if (!setFirstMove)
+                    foreach (WidgetComponent widget in AssetService.widgets.Widgets)
                     {
-                        tempConfig = AssetService.GetConfigurationFile();
-                        setFirstMove = true;
-                    }
-
-                    // 檢查與其他 widget 是否碰撞
-                    foreach (var widget in tempConfig.lastSessionWidgets)
-                    {
-                        // 略過自身
-                        if (this.id == widget.id || widget.path.Contains("background.html"))
+                        if (this.id == widget.id || widget.htmlPath.Contains("background.html"))
                             continue;
 
-                        Rectangle oriRect = new Rectangle(widget.position.X, widget.position.Y, widget.width, widget.height);
-                        if (newRect.IntersectsWith(oriRect))
-                        {
-                            Point previousCenter = new Point(previousPosition.X + newRect.Width / 2, previousPosition.Y + newRect.Height / 2);
-                            Point widgetCenter = new Point(widget.position.X + widget.width / 2, widget.position.Y + widget.height / 2);
+                        int Xpos = widget.window.Location.X;
+                        int Ypos = widget.window.Location.Y;
+                        Rectangle otherRect = new Rectangle(Xpos, Ypos, widget.width, widget.height);
 
-                            // 判斷主要是水平或垂直碰撞
-                            if (Math.Abs(previousCenter.X - widgetCenter.X) > Math.Abs(previousCenter.Y - widgetCenter.Y))
+                        if (newRect.IntersectsWith(otherRect))
+                        {
+                            Point previousCenter = new Point(previousPosition.X + window.Width / 2, previousPosition.Y + window.Height / 2);
+                            Point widgetCenter = new Point(Xpos + widget.width / 2, Ypos + widget.height / 2);
+
+                            bool isHorizontal = Math.Abs(previousCenter.X - widgetCenter.X) > Math.Abs(previousCenter.Y - widgetCenter.Y);
+                            bool pushOther = false;
+                            Rectangle overlap = Rectangle.Intersect(newRect, otherRect);
+
+                            if (isHorizontal)
                             {
-                                // 水平碰撞
-                                if (previousCenter.X < widgetCenter.X)
+                                // 水平碰撞處理
+                                if (overlap.Width >= widget.width * 0.8)
                                 {
-                                    // 從左側靠近：將自己的右邊緣對齊碰撞 widget 的左邊緣
-                                    newRect.X = widget.position.X - newRect.Width;
+                                    pushOther = true;
+                                    if (previousCenter.X < widgetCenter.X)
+                                    { // 從左側推開
+                                        widget.window.Location = new Point(Xpos - widget.window.Width, Ypos);
+                                        window.Location = new Point(otherRect.X, window.Location.Y);
+                                    }
+                                    else
+                                    {                                  // 從右側推開
+                                        widget.window.Location = new Point(otherRect.Right, Ypos);
+                                        window.Location = new Point(otherRect.X, window.Location.Y);
+                                    }
                                 }
-                                else
+                                else  // 不足一半時調整自己
                                 {
-                                    // 從右側靠近：將自己的左邊緣對齊碰撞 widget 的右邊緣
-                                    newRect.X = widget.position.X + widget.width;
+                                    newRect.X = previousCenter.X < widgetCenter.X
+                                        ? Xpos - newRect.Width
+                                        : Xpos + widget.width;
                                 }
                             }
                             else
                             {
-                                // 垂直碰撞
-                                if (previousCenter.Y < widgetCenter.Y)
+                                // 垂直碰撞處理
+                                if (overlap.Height >= widget.height * 0.8)
                                 {
-                                    // 從上方靠近：將自己的下邊緣對齊碰撞 widget 的上邊緣
-                                    newRect.Y = widget.position.Y - newRect.Height;
+                                    pushOther = true;
+                                    if (previousCenter.Y < widgetCenter.Y)
+                                    { // 從上方推開
+                                        widget.window.Location = new Point(Xpos, otherRect.Top - otherRect.Height);
+                                        window.Location = new Point(window.Location.X, Ypos);
+                                    }
+                                    else
+                                    {                                  // 從下方推開
+                                        widget.window.Location = new Point(Xpos, otherRect.Bottom);
+                                        window.Location = new Point(window.Location.X, Ypos);
+                                    }
                                 }
-                                else
+                                else  // 不足一半時調整自己
                                 {
-                                    // 從下方靠近：將自己的上邊緣對齊碰撞 widget 的下邊緣
-                                    newRect.Y = widget.position.Y + widget.height;
+                                    newRect.Y = previousCenter.Y < widgetCenter.Y
+                                        ? Ypos - newRect.Height
+                                        : Ypos + widget.height;
                                 }
                             }
 
-                            // 更新視窗位置與 previousPosition
-                            window.Location = new Point(newRect.X, newRect.Y);
-                            previousPosition = window.Location;
-                            this.widgetService.AddOrUpdateSession(this.htmlPath, window.Location, window.TopMost, window.Size.Width, window.Size.Height, this.id);
-
-                            // 發生碰撞後跳出方法（或是根據實際需求考慮是否還需進一步檢查其他 widget）
-                            return;
+                            if (pushOther)
+                            {
+                                // 更新被推開的widget狀態
+                                widget.previousPosition = widget.window.Location;
+                                widget.widgetService.AddOrUpdateSession(
+                                    widget.htmlPath,
+                                    widget.window.Location,
+                                    widget.window.TopMost,
+                                    widget.width,
+                                    widget.height,
+                                    widget.id
+                                );
+                                collisionHandled = true;
+                            }
+                            else
+                            {
+                                // 更新自身位置並退出
+                                window.Location = new Point(newRect.X, newRect.Y);
+                                previousPosition = window.Location;
+                                this.widgetService.AddOrUpdateSession(
+                                    this.htmlPath,
+                                    window.Location,
+                                    window.TopMost,
+                                    window.Width,
+                                    window.Height,
+                                    this.id
+                                );
+                                return;
+                            }
                         }
                     }
 
-                    // 若無碰撞則依滑鼠位置正常更新視窗位置
-                    window.Location = new Point(pos.X - width / 2, pos.Y - height / 2);
-                    previousPosition = window.Location;
-                    this.widgetService.AddOrUpdateSession(this.htmlPath, window.Location, window.TopMost, window.Size.Width, window.Size.Height, this.id);
+                    // 若發生碰撞且已處理，或完全無碰撞時更新位置
+                    if (!collisionHandled)
+                    {
+                        window.Location = new Point(pos.X - window.Width / 2, pos.Y - window.Height / 2);
+                        previousPosition = window.Location;
+                        this.widgetService.AddOrUpdateSession(
+                            this.htmlPath,
+                            window.Location,
+                            window.TopMost,
+                            window.Width,
+                            window.Height,
+                            this.id
+                        );
+                    }
                 }));
             }
         }

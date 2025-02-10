@@ -10,7 +10,7 @@ namespace Services
 {
     internal class WidgetService
     {
-        public WidgetComponent getWidgetComponentById(int id)
+        public WidgetComponent GetWidgetComponentById(int id)
         {
             Configuration config = AssetService.GetConfigurationFile();
 
@@ -32,7 +32,6 @@ namespace Services
         public void ToggleMove(WidgetComponent widget)
         {
             widget.moveModeEnabled = !widget.moveModeEnabled;
-            widget.setFirstMove = false;
         }
 
         /// <summary>

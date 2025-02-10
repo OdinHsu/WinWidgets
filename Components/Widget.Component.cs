@@ -109,7 +109,7 @@ namespace Components
             }
         }
 
-        public override void CreateWindow(int width, int height, string title, bool save, Point position = default(Point), bool? alwaysOnTop = null)
+        public override void CreateWindow(int width, int height, string title, bool save, Point position = default(Point), bool? alwaysOnTop = null, int id = -1)
         {
             new Thread(() =>
             {
@@ -164,6 +164,11 @@ namespace Components
                 this.windowService.HideWindowFromProgramSwitcher(window.Handle);
                 this.configuration = this.widgetService.GetConfiguration(this);
                 Configuration config = AssetService.GetConfigurationFile();
+
+                if (id != -1)
+                {
+
+                }
 
                 foreach (var widget in config.lastSessionWidgets)
                 {

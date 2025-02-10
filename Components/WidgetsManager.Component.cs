@@ -142,7 +142,7 @@ namespace Components
             CreateWindow(width, height, "WinWidgets", false);
         }
 
-        public override void CreateWindow(int width, int height, string title, bool save, Point position = default(Point), bool? alwaysOnTop = null)
+        public override void CreateWindow(int width, int height, string title, bool save, Point position = default(Point), bool? alwaysOnTop = null, int id = -1)
         {
             window = new WidgetForm(false);
             window.Size = new Size(width, height);

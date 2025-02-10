@@ -3,15 +3,28 @@ using Components;
 using Models;
 using System;
 using System.Collections;
-using System.Drawing;
 using System.IO;
-using System.Windows;
 using System.Windows.Forms;
 
 namespace Services
 {
     internal class WidgetService
     {
+        public WidgetComponent getWidgetComponentById(int id)
+        {
+            Configuration config = AssetService.GetConfigurationFile();
+
+            for (int i = 0; i < AssetService.widgets.Widgets.Count; i++)
+            {
+                WidgetComponent widget = (WidgetComponent)AssetService.widgets.Widgets[i];
+
+                if (widget.id == id)
+                    return widget;
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Toggles the move mode of a widget. Allows it to me dragged
         /// </summary>

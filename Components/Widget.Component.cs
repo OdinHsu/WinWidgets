@@ -196,7 +196,7 @@ namespace Components
 
                 if (save)
                 {
-                    if (!OverLapHandle()) return;
+                    if (!OverLapHandle() && attribute != "background") return;
                     this.widgetService.AddOrUpdateSession(htmlPath, window.Location, topMost, this.width, this.height, this.id);
                     AssetService.OverwriteConfigurationFile(AssetService.GetConfigurationFile());
                 }
@@ -298,7 +298,6 @@ namespace Components
                 }
             }
 
-            // 兜底策略：优先尝试右上角
             if (!foundPosition)
             {
                 return false;
@@ -338,6 +337,12 @@ namespace Components
                 // 使用 BeginInvoke 確保 UI 操作執行在正確執行緒，避免阻塞 UI 執行緒
                 window.BeginInvoke(new Action(() =>
                 {
+                    // 计算鼠标移动方向
+                    int deltaX = pos.X - previousPosition.X;
+                    int deltaY = pos.Y - previousPosition.Y;
+
+                    Console.WriteLine(deltaY + " " + deltaX);
+
                     // 根據滑鼠位置計算新的視窗矩形
                     Rectangle newRect = new Rectangle(pos.X - width / 2, pos.Y - height / 2, window.Width, window.Height);
 
@@ -351,13 +356,12 @@ namespace Components
                     foreach (var widget in tempConfig.lastSessionWidgets)
                     {
                         // 略過自身
-                        if (this.id == widget.id)
+                        if (this.id == widget.id || widget.path.Contains("background.html"))
                             continue;
 
                         Rectangle oriRect = new Rectangle(widget.position.X, widget.position.Y, widget.width, widget.height);
                         if (newRect.IntersectsWith(oriRect))
                         {
-                            // 計算上一次位置的中心與碰撞 widget 的中心
                             Point previousCenter = new Point(previousPosition.X + newRect.Width / 2, previousPosition.Y + newRect.Height / 2);
                             Point widgetCenter = new Point(widget.position.X + widget.width / 2, widget.position.Y + widget.height / 2);
 
@@ -452,9 +456,6 @@ namespace Components
             }
             else
             {
-                // test
-                Console.WriteLine(message);
-
                 // 處理其他消息，例如更新配置
                 this.widgetService.SetConfiguration(this, message);
             }

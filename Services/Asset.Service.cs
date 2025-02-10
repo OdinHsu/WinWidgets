@@ -119,7 +119,7 @@ namespace Services
             if (!File.Exists(AssetService.configPath))
             {
                 OverwriteConfigurationFile(new Configuration() { 
-                    isWidgetAutostartEnabled = false, 
+                    isWidgetAutostartEnabled = true, 
                     lastSessionWidgets = new List<WidgetConfiguration>(),
                     isWidgetFullscreenHideEnabled = false,
                     hideWidgetManagerOnStartup = false,

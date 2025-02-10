@@ -335,9 +335,10 @@ namespace Components
             // 獲取滑鼠當前位置
             if (GetCursorPos(out POINT pos))
             {
-                // 使用 BeginInvoke 確保 UI 操作執行在正確執行緒，使用 BeginInvoke，避免阻塞 UI 執行緒
+                // 使用 BeginInvoke 確保 UI 操作執行在正確執行緒，避免阻塞 UI 執行緒
                 window.BeginInvoke(new Action(() =>
                 {
+                    // 根據滑鼠位置計算新的視窗矩形
                     Rectangle newRect = new Rectangle(pos.X - width / 2, pos.Y - height / 2, window.Width, window.Height);
 
                     if (!setFirstMove)
@@ -346,24 +347,68 @@ namespace Components
                         setFirstMove = true;
                     }
 
+                    // 檢查與其他 widget 是否碰撞
                     foreach (var widget in tempConfig.lastSessionWidgets)
                     {
+                        // 略過自身
+                        if (this.id == widget.id)
+                            continue;
+
                         Rectangle oriRect = new Rectangle(widget.position.X, widget.position.Y, widget.width, widget.height);
-                        if (newRect.IntersectsWith(oriRect) && this.id != widget.id)  // 有碰撞
+                        if (newRect.IntersectsWith(oriRect))
                         {
+                            // 計算上一次位置的中心與碰撞 widget 的中心
+                            Point previousCenter = new Point(previousPosition.X + newRect.Width / 2, previousPosition.Y + newRect.Height / 2);
+                            Point widgetCenter = new Point(widget.position.X + widget.width / 2, widget.position.Y + widget.height / 2);
 
+                            // 判斷主要是水平或垂直碰撞
+                            if (Math.Abs(previousCenter.X - widgetCenter.X) > Math.Abs(previousCenter.Y - widgetCenter.Y))
+                            {
+                                // 水平碰撞
+                                if (previousCenter.X < widgetCenter.X)
+                                {
+                                    // 從左側靠近：將自己的右邊緣對齊碰撞 widget 的左邊緣
+                                    newRect.X = widget.position.X - newRect.Width;
+                                }
+                                else
+                                {
+                                    // 從右側靠近：將自己的左邊緣對齊碰撞 widget 的右邊緣
+                                    newRect.X = widget.position.X + widget.width;
+                                }
+                            }
+                            else
+                            {
+                                // 垂直碰撞
+                                if (previousCenter.Y < widgetCenter.Y)
+                                {
+                                    // 從上方靠近：將自己的下邊緣對齊碰撞 widget 的上邊緣
+                                    newRect.Y = widget.position.Y - newRect.Height;
+                                }
+                                else
+                                {
+                                    // 從下方靠近：將自己的上邊緣對齊碰撞 widget 的下邊緣
+                                    newRect.Y = widget.position.Y + widget.height;
+                                }
+                            }
 
+                            // 更新視窗位置與 previousPosition
+                            window.Location = new Point(newRect.X, newRect.Y);
+                            previousPosition = window.Location;
+                            this.widgetService.AddOrUpdateSession(this.htmlPath, window.Location, window.TopMost, window.Size.Width, window.Size.Height, this.id);
+
+                            // 發生碰撞後跳出方法（或是根據實際需求考慮是否還需進一步檢查其他 widget）
                             return;
                         }
                     }
 
-                    // 更新視窗位置
+                    // 若無碰撞則依滑鼠位置正常更新視窗位置
                     window.Location = new Point(pos.X - width / 2, pos.Y - height / 2);
-
+                    previousPosition = window.Location;
                     this.widgetService.AddOrUpdateSession(this.htmlPath, window.Location, window.TopMost, window.Size.Width, window.Size.Height, this.id);
                 }));
             }
         }
+
 
         private void OnFormActivated(object sender, EventArgs e)
         {

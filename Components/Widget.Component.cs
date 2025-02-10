@@ -165,12 +165,12 @@ namespace Components
                 this.configuration = this.widgetService.GetConfiguration(this);
                 Configuration config = AssetService.GetConfigurationFile();
 
-                if (id == -1)
+                if (id == -1)  // 新創見的widget都是-1
                 {
                     foreach (var widget in config.lastSessionWidgets)
                     {
                         // 這裡假設 widget.id 是已分配的唯一值
-                        if (widget.id >= _nextWidgetId && widget.path != htmlPath)
+                        if (widget.id >= _nextWidgetId)
                             _nextWidgetId = widget.id + 1;
                     }
                     this.id = _nextWidgetId++;

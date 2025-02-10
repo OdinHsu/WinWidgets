@@ -221,7 +221,8 @@ namespace Components
                     widgetConfiguration.position.X, 
                     widgetConfiguration.position.Y
                 ),
-                widgetConfiguration.alwaysOnTop);
+                widgetConfiguration.alwaysOnTop,
+                widgetConfiguration.id);
             }
         }
 
@@ -234,13 +235,13 @@ namespace Components
             widget.CreateWindow(300, 300, $"Widget{id}", true);
         }
 
-        public override void OpenWidget(string path, Point position, bool? alwaysOnTop)
+        public override void OpenWidget(string path, Point position, bool? alwaysOnTop, int id)
         {
             WidgetComponent widget = new WidgetComponent();
             AssetService.widgets.AddWidget(widget);
 
             widget.htmlPath = path;
-            widget.CreateWindow(300, 300, $"Widget{path}", false, position, alwaysOnTop);
+            widget.CreateWindow(300, 300, $"Widget{path}", false, position, alwaysOnTop, id);
         }
 
         private void OnStopAllWidgets(object sender, EventArgs e)

@@ -35,6 +35,8 @@ namespace Components
         private WidgetService widgetService = new WidgetService();
         private TimerService timerService = new TimerService();
 
+        private Point previousPosition;
+
         private DateTime _lastSaveTime = DateTime.MinValue;
 
         private Tuple<int, int, int, int> screenBounds;
@@ -199,6 +201,8 @@ namespace Components
                     AssetService.OverwriteConfigurationFile(AssetService.GetConfigurationFile());
                 }
 
+                previousPosition = window.Location;
+
                 AppendWidget(window, htmlPath);
                 window.TopMost = topMost;
                 window.isTopMost = topMost;
@@ -345,8 +349,12 @@ namespace Components
                     foreach (var widget in tempConfig.lastSessionWidgets)
                     {
                         Rectangle oriRect = new Rectangle(widget.position.X, widget.position.Y, widget.width, widget.height);
-                        if (newRect.IntersectsWith(oriRect) && this.id != widget.id)
+                        if (newRect.IntersectsWith(oriRect) && this.id != widget.id)  // 有碰撞
+                        {
+
+
                             return;
+                        }
                     }
 
                     // 更新視窗位置

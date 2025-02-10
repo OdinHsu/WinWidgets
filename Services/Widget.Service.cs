@@ -19,6 +19,7 @@ namespace Services
         public void ToggleMove(WidgetComponent widget)
         {
             widget.moveModeEnabled = !widget.moveModeEnabled;
+            widget.setFirstMove = false;
         }
 
         /// <summary>

@@ -19,6 +19,7 @@ namespace Components
     internal class WidgetComponent : WidgetModel
     {
         public bool moveModeEnabled = false;
+        public bool setFirstMove = false;
         private bool isTopMost = false;
 
         private IntPtr _handle;
@@ -26,6 +27,7 @@ namespace Components
         private WidgetForm _window;
         private ChromiumWebBrowser _browser;
         private Configuration _configuration;
+        private Configuration tempConfig;
         private int width;
         private int height;
         private HTMLDocService htmlDocService = new HTMLDocService();
@@ -46,6 +48,16 @@ namespace Components
         public int id { get; set; }
 
         private int _nextWidgetId = 0;
+
+        private List<ExistingRect> cachedExistingRects;
+
+        private struct ExistingRect
+        {
+            public Rectangle Rect;
+            public int Right;
+            public int Bottom;
+        }
+
         public override IntPtr handle
         {
             get { return _handle; }
@@ -204,7 +216,8 @@ namespace Components
 
             // 预处理：按X坐标排序并缓存矩形右边界
             var existingRects = config.lastSessionWidgets
-                .Select(w => new {
+                .Select(w => new
+                {
                     rect = new Rectangle(w.position.X, w.position.Y, w.width, w.height),
                     right = w.position.X + w.width
                 })
@@ -293,7 +306,7 @@ namespace Components
 
         private void OnBrowserInitialized(object sender, EventArgs e)
         {
-            this.timerService.CreateTimer(33, OnBrowserUpdateTick, true, true);
+            this.timerService.CreateTimer(16, OnBrowserUpdateTick, true, true);
             if (attribute == "background")
             {
                 SetWindowPos(window.Handle, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
@@ -310,11 +323,6 @@ namespace Components
             this.browser.JavascriptMessageReceived += OnBrowserMessageReceived;
         }
 
-        private void UpdateSession()
-        {
-            this.widgetService.AddOrUpdateSession(this.htmlPath, window.Location, window.TopMost, window.Size.Width, window.Size.Height, this.id);
-        }
-
         private void OnBrowserUpdateTick(object sender, ElapsedEventArgs e)
         {
             // 檢查是否處於移動模式
@@ -326,10 +334,25 @@ namespace Components
                 // 使用 BeginInvoke 確保 UI 操作執行在正確執行緒，使用 BeginInvoke，避免阻塞 UI 執行緒
                 window.BeginInvoke(new Action(() =>
                 {
+                    Rectangle newRect = new Rectangle(pos.X - width / 2, pos.Y - height / 2, window.Width, window.Height);
+
+                    if (!setFirstMove)
+                    {
+                        tempConfig = AssetService.GetConfigurationFile();
+                        setFirstMove = true;
+                    }
+
+                    foreach (var widget in tempConfig.lastSessionWidgets)
+                    {
+                        Rectangle oriRect = new Rectangle(widget.position.X, widget.position.Y, widget.width, widget.height);
+                        if (newRect.IntersectsWith(oriRect) && this.id != widget.id)
+                            return;
+                    }
+
                     // 更新視窗位置
                     window.Location = new Point(pos.X - width / 2, pos.Y - height / 2);
 
-                    UpdateSession();
+                    this.widgetService.AddOrUpdateSession(this.htmlPath, window.Location, window.TopMost, window.Size.Width, window.Size.Height, this.id);
                 }));
             }
         }
